@@ -1,5 +1,7 @@
 package parsers;
 
-public interface Parser {
+import news.News;
 
+public interface Parser {
+    News parsePage(String url);
 }
