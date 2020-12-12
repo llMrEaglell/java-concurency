@@ -23,6 +23,18 @@ public class News {
         this.tags = new ArrayList<>();
     }
 
+    public News(String title, String text, LocalDate datePublication,String mainImageURL) {
+        this(title,text,datePublication);
+        this.mainImageURL = mainImageURL;
+    }
+
+    public News(String title, String text, LocalDate datePublication,String mainImageURL,List<String> tags) {
+        this(title,text,datePublication,mainImageURL);
+        this.tags = tags;
+    }
+
+
+
     public void setTitle(String title) {
         this.title = title;
     }

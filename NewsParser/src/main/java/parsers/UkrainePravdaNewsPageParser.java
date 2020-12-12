@@ -1,12 +1,15 @@
 package parsers;
 
+import dateParser.DateParser;
 import news.News;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import static java.lang.System.*;
 
 public class UkrainePravdaNewsPageParser implements Parser {
 
@@ -15,24 +18,18 @@ public class UkrainePravdaNewsPageParser implements Parser {
     private static final String mainImageClass = "post_photo_news_img";
     private static final String textClass = "post_text";
     private static final String withTimeClass = "post_time";
-
-
+    private static final String tagsClass = "post_tags_item";
 
 
     @Override
     public News parsePage(String url) {
-        News news;
         Document doc = loadDocument(url);
         String title = parseTitle(doc, titleClass);
-        out.println(title);
         String mainImageURL = parseMainImage(doc, mainImageClass);
-        out.println(mainImageURL);
         String text = parseText(doc, textClass);
-        out.println(text);
-        String fullDate = parseDate(doc, withTimeClass);
-//        LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd MMM uuuu"));
-        out.println(fullDate);
-        return null;
+        LocalDate localDate = DateParser.parse(parseDate(doc, withTimeClass).split(",")[1]);
+        List<String> tags = parseTags(doc, tagsClass);
+        return new News(title, text, localDate, mainImageURL, tags);
     }
 
     @Override
@@ -53,6 +50,13 @@ public class UkrainePravdaNewsPageParser implements Parser {
             e.printStackTrace();
         }
         return new Document("");
+    }
+
+    @Override
+    public List<String> parseTags(Document doc, String tagsClass) {
+        return doc.getElementsByClass(tagsClass).stream()
+                .map(element -> element.getElementsByTag("a").text())
+                .collect(Collectors.toList());
     }
 
     @Override

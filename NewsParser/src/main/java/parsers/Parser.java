@@ -3,6 +3,8 @@ package parsers;
 import news.News;
 import org.jsoup.nodes.Document;
 
+import java.util.List;
+
 public interface Parser {
     News parsePage(String url);
 
@@ -17,4 +19,5 @@ public interface Parser {
 
     String parseMainImage(Document doc, String imageClass);
 
+    List<String> parseTags(Document doc, String tagsClass);
 }
