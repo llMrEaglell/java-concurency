@@ -1,7 +1,7 @@
-package parsers;
+package newsAgregator.parsers;
 
-import dateParser.DateParser;
-import news.News;
+import newsAgregator.dateParser.DateParser;
+import newsAgregator.news.News;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 

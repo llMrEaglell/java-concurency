@@ -1,4 +1,4 @@
-package crawler;
+package newsAgregator.crawler;
 
 import org.jsoup.nodes.Document;
 

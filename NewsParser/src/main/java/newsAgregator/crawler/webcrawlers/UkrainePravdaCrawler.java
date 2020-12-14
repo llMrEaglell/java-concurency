@@ -1,6 +1,6 @@
-package crawler.webcrawlers;
+package newsAgregator.crawler.webcrawlers;
 
-import crawler.Crawler;
+import newsAgregator.crawler.Crawler;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
@@ -11,10 +11,10 @@ import java.util.List;
 import static org.jsoup.Jsoup.connect;
 
 
-public class UkraineTrueCrawler implements Crawler {
+public class UkrainePravdaCrawler implements Crawler {
     String url;
 
-    public UkraineTrueCrawler(String url) {
+    public UkrainePravdaCrawler(String url) {
         this.url = url;
     }
 
