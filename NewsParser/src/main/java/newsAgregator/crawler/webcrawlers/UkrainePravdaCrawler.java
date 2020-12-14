@@ -37,8 +37,8 @@ public class UkrainePravdaCrawler implements Crawler {
 
     private StringBuilder getUrl(LocalDate date) {
         StringBuilder urlWithPattern = new StringBuilder();
-        urlWithPattern.append("date_");
         urlWithPattern.append(url);
+        urlWithPattern.append("date_");
         urlWithPattern.append(date.getDayOfMonth());
         urlWithPattern.append(date.getMonthValue());
         urlWithPattern.append(date.getYear());

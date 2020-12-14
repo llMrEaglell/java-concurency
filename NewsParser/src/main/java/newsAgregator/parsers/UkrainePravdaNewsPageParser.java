@@ -44,8 +44,7 @@ public class UkrainePravdaNewsPageParser implements Parser {
 
     private Document loadDocument(String url) {
         try {
-            if (url.startsWith("/news")) return Jsoup.connect(baseUrl + url).get();
-//            else return Jsoup.connect(url).get();
+            return Jsoup.connect(baseUrl + url).get();
         } catch (IOException e) {
             e.printStackTrace();
         }
