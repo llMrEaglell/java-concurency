@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.jsoup.Jsoup.connect;
 
@@ -26,7 +27,9 @@ public class UkrainePravdaCrawler implements Crawler {
             String urlWithPattern = url + "date_" + date.getDayOfMonth() + date.getMonthValue() + date.getYear();
             try {
                 Document document = connect(urlWithPattern).get();
-                List<String> ulrsOnNewsList = uploadLinksForNewsOnPage(document, "article_header");
+                List<String> ulrsOnNewsList = uploadLinksForNewsOnPage(document, "article_header").stream()
+                        .filter(url -> url.startsWith("/news"))
+                        .collect(Collectors.toList());
                 addToList(pages, ulrsOnNewsList, count);
             } catch (IOException e) {
                 e.printStackTrace();
