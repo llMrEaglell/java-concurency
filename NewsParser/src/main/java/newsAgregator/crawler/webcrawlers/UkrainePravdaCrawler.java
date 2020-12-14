@@ -13,20 +13,16 @@ import static org.jsoup.Jsoup.connect;
 
 
 public class UkrainePravdaCrawler implements Crawler {
-    String url;
-
-    public UkrainePravdaCrawler(String url) {
-        this.url = url;
-    }
+    private static final String url = "https://www.pravda.com.ua/news/";
 
     @Override
     public List<String> getPages(int count) {
         List<String> pages = new ArrayList<>(count);
         LocalDate date = LocalDate.now();
         do {
-            String urlWithPattern = url + "date_" + date.getDayOfMonth() + date.getMonthValue() + date.getYear();
+            StringBuilder urlWithPattern = getUrl(date);
             try {
-                Document document = connect(urlWithPattern).get();
+                Document document = connect(urlWithPattern.toString()).get();
                 List<String> ulrsOnNewsList = uploadLinksForNewsOnPage(document, "article_header").stream()
                         .filter(url -> url.startsWith("/news"))
                         .collect(Collectors.toList());
@@ -37,6 +33,16 @@ public class UkrainePravdaCrawler implements Crawler {
             date = date.minusDays(1);
         } while (pages.size() < count);
         return pages;
+    }
+
+    private StringBuilder getUrl(LocalDate date) {
+        StringBuilder urlWithPattern = new StringBuilder();
+        urlWithPattern.append("date_");
+        urlWithPattern.append(url);
+        urlWithPattern.append(date.getDayOfMonth());
+        urlWithPattern.append(date.getMonthValue());
+        urlWithPattern.append(date.getYear());
+        return urlWithPattern;
     }
 
 }
