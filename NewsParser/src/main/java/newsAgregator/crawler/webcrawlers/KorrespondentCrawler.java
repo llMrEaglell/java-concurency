@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class KorrespondentCrawler implements Crawler {
     private static final String BASE_URL = "https://korrespondent.net/all/";
@@ -23,7 +24,10 @@ public class KorrespondentCrawler implements Crawler {
             StringBuilder stringBuilder = urlLoad(date, p);
             try {
                 Document doc = Jsoup.connect(stringBuilder.toString()).get();
-                List<String> urls = uploadLinksForNewsOnPage(doc, "article__title");
+                List<String> urls = uploadLinksForNewsOnPage(doc, "article__title")
+                        .stream()
+                        .filter(url->url.startsWith("https://korrespondent.net/"))
+                        .collect(Collectors.toList());
                 if (urls.isEmpty()) {
                     date = date.minusDays(1);
                     p.set(1);
