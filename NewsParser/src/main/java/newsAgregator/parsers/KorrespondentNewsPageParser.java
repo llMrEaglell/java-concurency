@@ -1,2 +1,70 @@
-package newsAgregator.parsers;public class KorrespondentNewsPageParser {
+package newsAgregator.parsers;
+
+import newsAgregator.dateParser.DateParser;
+import newsAgregator.news.News;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class KorrespondentNewsPageParser implements Parser {
+    private static final String titleClass = "post-item__title";
+    private static final String mainImageClass = "post-item__big-photo-img";
+    private static final String textClass = "post-item__text";
+    private static final String withTimeClass = "post-item__info";
+    private static final String tagsClass = "post-item__tags-item";
+
+
+    @Override
+    public News parsePage(String url) {
+        Document doc = loadDocument(url);
+        String title = parseTitle(doc, titleClass);
+        String mainImageURL = parseMainImage(doc, mainImageClass);
+        String text = parseText(doc, textClass);
+        String date = " Сегодня";
+        try {
+            date = parseDate(doc, withTimeClass).split(",")[1];
+        }catch (ArrayIndexOutOfBoundsException e){
+            System.out.println(url);
+            e.printStackTrace();
+        }
+        LocalDate localDate = DateParser.parse(date);
+        List<String> tags = parseTags(doc, tagsClass);
+        return new News(title, text, localDate, mainImageURL, tags);
+    }
+
+
+    private Document loadDocument(String url) {
+        try {
+            return Jsoup.connect(url).get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new Document("");
+    }
+
+    @Override
+    public String parseDate(Document doc, String classWithTime) {
+        return doc.getElementsByClass(classWithTime).text();
+    }
+
+    @Override
+    public String parseText(Document doc, String classText) {
+        return doc.getElementsByClass(classText).text();
+    }
+
+    @Override
+    public String parseMainImage(Document doc, String imageClass) {
+        return doc.getElementsByClass(imageClass).attr("src");
+    }
+
+    @Override
+    public List<String> parseTags(Document doc, String tagsClass) {
+        return doc.getElementsByClass(tagsClass).stream()
+                .map(element -> element.getElementsByTag("a").text())
+                .collect(Collectors.toList());
+    }
 }
