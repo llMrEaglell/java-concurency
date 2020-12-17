@@ -1,4 +1,4 @@
-package newsAgregator.parsers;
+package com.newsAgregator.parsers;
 
 import newsAgregator.news.News;
 import org.jsoup.nodes.Document;

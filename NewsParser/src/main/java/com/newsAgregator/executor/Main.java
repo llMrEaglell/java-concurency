@@ -1,14 +1,11 @@
-package com;
+package com.newsAgregator.executor;
 
-import newsAgregator.crawler.Crawler;
-import newsAgregator.crawler.webcrawlers.KorrespondentCrawler;
-import newsAgregator.crawler.webcrawlers.UkrainePravdaCrawler;
-import newsAgregator.news.News;
-import newsAgregator.parsers.KorrespondentNewsPageParser;
-import newsAgregator.parsers.Parser;
-import newsAgregator.parsers.UkrainePravdaNewsPageParser;
+
+import com.newsAgregator.crawler.Crawler;
+import com.newsAgregator.crawler.webcrawlers.KorrespondentCrawler;
 
 import java.util.List;
+import java.util.Set;
 
 public class Main {
     public static void main(String[] args) {
@@ -22,7 +19,7 @@ public class Main {
 //        }
 
         Crawler korrepsondentCrawler = new KorrespondentCrawler();
-        List<String> pages = korrepsondentCrawler.getPages(200);
+        Set<String> pages = korrepsondentCrawler.getPages(1000);
         System.out.println(pages);
 //        Parser korrespondentParser = new KorrespondentNewsPageParser();
 //        for (String page : pages) {

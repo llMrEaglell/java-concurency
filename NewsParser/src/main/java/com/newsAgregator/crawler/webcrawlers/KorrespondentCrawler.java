@@ -1,14 +1,14 @@
-package newsAgregator.crawler.webcrawlers;
+package com.newsAgregator.crawler.webcrawlers;
 
-import newsAgregator.crawler.Crawler;
+import com.newsAgregator.crawler.Crawler;
 import newsAgregator.dateParser.DateParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -16,18 +16,15 @@ public class KorrespondentCrawler implements Crawler {
     private static final String BASE_URL = "https://korrespondent.net/all/";
 
     @Override
-    public List<String> getPages(int count) {
-        List<String> pages = new ArrayList<>(count);
+    public Set<String> getPages(int count) {
+        Set<String> pages = new HashSet<>(count);
         LocalDate date = LocalDate.now();
         AtomicInteger p = new AtomicInteger(1);
         do {
             StringBuilder stringBuilder = urlLoad(date, p);
             try {
                 Document doc = Jsoup.connect(stringBuilder.toString()).get();
-                List<String> urls = uploadLinksForNewsOnPage(doc, "article__title")
-                        .stream()
-                        .filter(url->url.startsWith("https://korrespondent.net/"))
-                        .collect(Collectors.toList());
+                Set<String> urls = uploadLinksForNewsOnPage(doc, "article__title");
                 if (urls.isEmpty()) {
                     date = date.minusDays(1);
                     p.set(1);
@@ -54,4 +51,15 @@ public class KorrespondentCrawler implements Crawler {
         stringBuilder.append("/print/");
         return stringBuilder;
     }
+
+    private synchronized Set<String> uploadLinksForNewsOnPage(Document pageWithAllNews, String classNameWithNews) {
+        return pageWithAllNews.getElementsByClass(classNameWithNews).parallelStream()
+                .map(element -> element.getElementsByTag("a").attr("href"))
+                .filter(url->url.startsWith("https://korrespondent.net/"))
+                .collect(Collectors.toSet());
+    }
+    private synchronized void addToList(Set<String> source, Set<String> urls, int maxSize) {
+        urls.parallelStream().takeWhile(url -> source.size() != maxSize).forEach(source::add);
+    }
+
 }

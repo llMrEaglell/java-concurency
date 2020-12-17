@@ -1,4 +1,4 @@
-package newsAgregator.parsers;
+package com.newsAgregator.parsers;
 
 import newsAgregator.dateParser.DateParser;
 import newsAgregator.news.News;
@@ -24,13 +24,7 @@ public class KorrespondentNewsPageParser implements Parser {
         String title = parseTitle(doc, titleClass);
         String mainImageURL = parseMainImage(doc, mainImageClass);
         String text = parseText(doc, textClass);
-        String date = " Сегодня";
-        try {
-            date = parseDate(doc, withTimeClass).split(",")[1];
-        }catch (ArrayIndexOutOfBoundsException e){
-            System.out.println(url);
-            e.printStackTrace();
-        }
+        String date = parseDate(doc, withTimeClass).split(",")[1];
         LocalDate localDate = DateParser.parse(date);
         List<String> tags = parseTags(doc, tagsClass);
         return new News(title, text, localDate, mainImageURL, tags);

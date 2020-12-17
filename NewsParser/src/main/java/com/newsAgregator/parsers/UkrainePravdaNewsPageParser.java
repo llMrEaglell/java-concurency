@@ -1,4 +1,4 @@
-package newsAgregator.parsers;
+package com.newsAgregator.parsers;
 
 import newsAgregator.dateParser.DateParser;
 import newsAgregator.news.News;
