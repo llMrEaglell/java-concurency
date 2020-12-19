@@ -1,6 +1,6 @@
 package com.newsAgregator.parsers;
 
-import newsAgregator.news.News;
+import com.newsAgregator.news.News;
 import org.jsoup.nodes.Document;
 
 import java.util.List;

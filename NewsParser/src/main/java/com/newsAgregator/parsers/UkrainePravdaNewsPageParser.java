@@ -1,7 +1,7 @@
 package com.newsAgregator.parsers;
 
 import newsAgregator.dateParser.DateParser;
-import newsAgregator.news.News;
+import com.newsAgregator.news.News;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 

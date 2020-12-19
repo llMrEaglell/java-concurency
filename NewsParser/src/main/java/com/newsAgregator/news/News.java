@@ -1,4 +1,4 @@
-package newsAgregator.news;
+package com.newsAgregator.news;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

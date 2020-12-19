@@ -5,9 +5,7 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,7 +16,7 @@ public class UkrainePravdaCrawler implements Crawler {
     private static final String url = "https://www.pravda.com.ua/news/";
 
     @Override
-    public Set<String> getPages(int count) {
+    public Set<String> getPages(int count,String url) {
         Set<String> pages = new HashSet<>(count);
         LocalDate date = LocalDate.now();
         do {
