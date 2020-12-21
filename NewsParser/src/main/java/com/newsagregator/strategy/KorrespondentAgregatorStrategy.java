@@ -6,6 +6,8 @@ import com.newsagregator.dateParser.DateParser;
 import com.newsagregator.news.News;
 import com.newsagregator.parsers.KorrespondentNewsPageParser;
 import com.newsagregator.parsers.Parser;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -63,7 +65,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
             }
         });
         try {
-            service.awaitTermination(10,TimeUnit.SECONDS);
+            service.awaitTermination(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             e.printStackTrace();
@@ -82,10 +84,11 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
 
     private void generateUrls(int count, Set<String> newsUrls) {
         String url;
-        try {
-            url = getUrl();
-            String finalUrl = url;
-            Set<String> urls = crawler.getPages(finalUrl, NEWS_CLASS, "https://korrespondent.net/");
+        url = getUrl();
+        String finalUrl = url;
+        Document page = connectToPage(finalUrl);
+        if (page != null) {
+            Set<String> urls = crawler.getPages(page, NEWS_CLASS, "https://korrespondent.net/");
             if (urls.isEmpty()) {
                 date = date.minusDays(1);
                 pageCounter.set(1);
@@ -94,8 +97,6 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
                 addToList(newsUrls, urls, count);
             }
             generateNextUrl(urls.isEmpty());
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -121,5 +122,15 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
                 date.getDayOfMonth(),
                 pageCounter.get());
         return urlPage;
+    }
+
+    private Document connectToPage(String url) {
+        Document doc = null;
+        try {
+            doc = Jsoup.connect(url).timeout(10000).get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return doc;
     }
 }
