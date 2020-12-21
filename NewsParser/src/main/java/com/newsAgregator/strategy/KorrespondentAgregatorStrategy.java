@@ -1,5 +1,6 @@
 package com.newsAgregator.strategy;
 
+import com.newsAgregator.NewsRepository;
 import com.newsAgregator.crawler.webcrawlers.PageCrawler;
 import com.newsAgregator.dateParser.DateParser;
 import com.newsAgregator.news.News;
@@ -25,22 +26,25 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private static LocalDate date = LocalDate.now();
     private static AtomicInteger pageCounter = new AtomicInteger(1);
 
+    private final NewsRepository repository;
     private PageCrawler crawler;
     private Parser parser;
 
-    public KorrespondentAgregatorStrategy() {
+    public KorrespondentAgregatorStrategy(NewsRepository repository) {
+        this.repository = repository;
         crawler = new PageCrawler();
         parser = new KorrespondentNewsPageParser(
                 POST_ITEM_TITLE, ITEM_BIG_PHOTO_IMG, textClasPOST_ITEM_TEXT, WITH_TIME_CLASS, POST_ITEM_TAGS_ITEM);
     }
 
     @Override
-    public void getNews(int count) {
+    public void parseAndSaveNews(int count) {
         err.println("Start Crawling");
         Set<String> newsUrls = crawlingUrls(count);
         err.println("Stop Crawling");
         Set<News> news = councurencyParse(newsUrls);
         out.println(news.size());
+        repository.saveNews(news);
     }
 
     private Set<News> councurencyParse(Set<String> newsUrls) {
