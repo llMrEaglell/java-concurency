@@ -39,15 +39,15 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         err.println("Start Crawling");
         Set<String> newsUrls = crawlingUrls(count);
         err.println("Stop Crawling");
-        List<News> news = councurencyParse(newsUrls);
+        Set<News> news = councurencyParse(newsUrls);
         out.println(news.size());
     }
 
-    private List<News> councurencyParse(Set<String> newsUrls) {
+    private Set<News> councurencyParse(Set<String> newsUrls) {
         err.println("Start paring");
         ExecutorService service = Executors.newFixedThreadPool(10);
         List<Future<News>> futures = new CopyOnWriteArrayList<>();
-        List<News> news = new ArrayList<>();
+        Set<News> news = new CopyOnWriteArraySet<>();
         newsUrls.forEach(s -> futures.add(service.submit(() -> parser.parsePage(s))));
         err.println("Start parse result");
         futures.parallelStream().forEach(newsFuture -> {
@@ -63,7 +63,6 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
 
     private Set<String> crawlingUrls(int count) {
         Set<String> newsUrls = new HashSet<>();
-        String url;
         do {
             generateUrls(count, newsUrls);
         } while (newsUrls.size() < count);
