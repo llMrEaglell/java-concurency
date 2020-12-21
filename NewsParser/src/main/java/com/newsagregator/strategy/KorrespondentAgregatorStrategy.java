@@ -1,11 +1,11 @@
-package com.newsAgregator.strategy;
+package com.newsagregator.strategy;
 
-import com.newsAgregator.NewsRepository;
-import com.newsAgregator.crawler.webcrawlers.PageCrawler;
-import com.newsAgregator.dateParser.DateParser;
-import com.newsAgregator.news.News;
-import com.newsAgregator.parsers.KorrespondentNewsPageParser;
-import com.newsAgregator.parsers.Parser;
+import com.newsagregator.NewsRepository;
+import com.newsagregator.crawler.webcrawlers.PageCrawler;
+import com.newsagregator.dateParser.DateParser;
+import com.newsagregator.news.News;
+import com.newsagregator.parsers.KorrespondentNewsPageParser;
+import com.newsagregator.parsers.Parser;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -43,7 +43,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         Set<String> newsUrls = crawlingUrls(count);
         err.println("Stop Crawling");
         Set<News> news = councurencyParse(newsUrls);
-        out.println(news.size());
+        err.println("Start saving");
         repository.saveNews(news);
     }
 
@@ -57,10 +57,17 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         futures.parallelStream().forEach(newsFuture -> {
             try {
                 news.add(newsFuture.get());
-            } catch (InterruptedException | ArrayIndexOutOfBoundsException | ExecutionException e) {
+            } catch (ArrayIndexOutOfBoundsException | InterruptedException | ExecutionException e) {
+                Thread.currentThread().interrupt();
                 e.printStackTrace();
             }
         });
+        try {
+            service.awaitTermination(10,TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            e.printStackTrace();
+        }
         service.shutdown();
         return news;
     }
@@ -78,7 +85,6 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         try {
             url = getUrl();
             String finalUrl = url;
-            err.println(url + " " + Thread.currentThread().getName());
             Set<String> urls = crawler.getPages(finalUrl, NEWS_CLASS, "https://korrespondent.net/");
             if (urls.isEmpty()) {
                 date = date.minusDays(1);

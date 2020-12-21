@@ -1,6 +1,6 @@
-package com.newsAgregator;
+package com.newsagregator;
 
-import com.newsAgregator.news.News;
+import com.newsagregator.news.News;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

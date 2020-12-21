@@ -1,4 +1,4 @@
-package com.newsAgregator.strategy;
+package com.newsagregator.strategy;
 
 
 public interface AgregatorStrategy {

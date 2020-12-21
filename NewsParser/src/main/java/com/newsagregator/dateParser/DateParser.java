@@ -1,4 +1,4 @@
-package com.newsAgregator.dateParser;
+package com.newsagregator.dateParser;
 
 import java.time.LocalDate;
 

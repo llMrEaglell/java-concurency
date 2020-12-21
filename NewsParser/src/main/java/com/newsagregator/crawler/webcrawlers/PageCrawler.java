@@ -1,4 +1,4 @@
-package com.newsAgregator.crawler.webcrawlers;
+package com.newsagregator.crawler.webcrawlers;
 
 import org.jsoup.Jsoup;
 
