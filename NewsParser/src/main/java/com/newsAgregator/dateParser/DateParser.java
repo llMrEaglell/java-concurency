@@ -1,4 +1,4 @@
-package newsAgregator.dateParser;
+package com.newsAgregator.dateParser;
 
 import java.time.LocalDate;
 
@@ -19,36 +19,47 @@ public class DateParser {
         switch (month) {
             case "січня":
             case "январь":
+            case "января":
                 return 1;
             case "лютого":
             case "февраль":
+            case "февраля":
                 return 2;
             case "березня":
             case "март":
+            case "марта":
                 return 3;
             case "квітня":
             case "апрель":
+            case "апреля":
                 return 4;
             case "травня":
             case "май":
+            case "мая":
                 return 5;
             case "червня":
             case "июнь":
+            case "июня":
                 return 6;
             case "липня":
             case "июль":
+            case "июля":
                 return 7;
             case "серпня":
             case "август":
+            case "августа":
                 return 8;
             case "вересня":
             case "сентябрь":
+            case "сентября":
                 return 9;
             case "жовтня":
             case "октябрь":
+            case "октября":
                 return 10;
             case "листопада":
             case "ноябрь":
+            case "ноября":
                 return 11;
             case "грудня":
             case "декабря":

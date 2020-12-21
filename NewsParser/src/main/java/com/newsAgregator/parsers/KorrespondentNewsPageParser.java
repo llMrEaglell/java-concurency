@@ -1,7 +1,7 @@
 package com.newsAgregator.parsers;
 
 import com.newsAgregator.news.News;
-import newsAgregator.dateParser.DateParser;
+import com.newsAgregator.dateParser.DateParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -11,12 +11,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class KorrespondentNewsPageParser implements Parser {
-    private static final String titleClass = "post-item__title";
-    private static final String mainImageClass = "post-item__big-photo-img";
-    private static final String textClass = "post-item__text";
-    private static final String withTimeClass = "post-item__info";
-    private static final String tagsClass = "post-item__tags-item";
+    private final String titleClass;
+    private final String mainImageClass;
+    private final String textClass;
+    private final String withTimeClass;
+    private final String tagsClass;
 
+    public KorrespondentNewsPageParser(String titleClass, String mainImageClass, String textClass, String withTimeClass, String tagsClass) {
+        this.titleClass = titleClass;
+        this.mainImageClass = mainImageClass;
+        this.textClass = textClass;
+        this.withTimeClass = withTimeClass;
+        this.tagsClass = tagsClass;
+    }
 
     @Override
     public News parsePage(String url) {

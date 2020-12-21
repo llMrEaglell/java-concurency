@@ -8,9 +8,7 @@ public class Main {
     public static void main(String[] args) {
 
         AgregatorStrategy strategy = new KorrespondentAgregatorStrategy();
-
-        strategy.getNews(1000);
-
+        strategy.getNews(10000);
 
     }
 }
