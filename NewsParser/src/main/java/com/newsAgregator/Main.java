@@ -1,4 +1,4 @@
-package com.newsAgregator.executor;
+package com.newsAgregator;
 
 
 import com.newsAgregator.strategy.AgregatorStrategy;
