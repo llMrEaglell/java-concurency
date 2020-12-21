@@ -26,25 +26,20 @@ public class KorrespondentNewsPageParser implements Parser {
     }
 
     @Override
-    public News parsePage(String url) {
-        Document doc = loadDocument(url);
+    public News parsePage(Document doc) {
         String title = parseTitle(doc, titleClass);
         String mainImageURL = parseMainImage(doc, mainImageClass);
         String text = parseText(doc, textClass);
-        String date = parseDate(doc, withTimeClass).split(",")[1];
+        String dateRow = parseDate(doc, withTimeClass);
+        String date = " Сегодня";
+        try {
+             date = dateRow.split(",")[1];
+        }catch (ArrayIndexOutOfBoundsException e){
+            System.err.println(dateRow);
+        }
         LocalDate localDate = DateParser.parse(date);
         List<String> tags = parseTags(doc, tagsClass);
         return new News(title, text, localDate, mainImageURL, tags);
-    }
-
-
-    private Document loadDocument(String url) {
-        try {
-            return Jsoup.connect(url).get();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new Document("");
     }
 
     @Override

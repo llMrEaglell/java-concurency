@@ -25,7 +25,7 @@ public class NewsRepository {
     public void saveNews(Set<News> allNews) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(SQL_INSERT_ALL_NEWS)) {
-            allNews.parallelStream().forEach(news -> {
+            allNews.forEach(news -> {
                 try {
                     ps.setString(1, news.getTitle());
                     ps.setString(2, news.getText());

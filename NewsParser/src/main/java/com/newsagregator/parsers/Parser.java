@@ -6,7 +6,7 @@ import org.jsoup.nodes.Document;
 import java.util.List;
 
 public interface Parser {
-    News parsePage(String url);
+    News parsePage(Document doc);
 
     default String parseTitle(Document document, String titleClass){
         return document.body()

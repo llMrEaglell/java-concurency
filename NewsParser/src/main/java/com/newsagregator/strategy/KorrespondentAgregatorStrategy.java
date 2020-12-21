@@ -27,7 +27,6 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private static final String POST_ITEM_TAGS_ITEM = "post-item__tags-item";
     private static LocalDate date = LocalDate.now();
     private static AtomicInteger pageCounter = new AtomicInteger(1);
-
     private final NewsRepository repository;
     private PageCrawler crawler;
     private Parser parser;
@@ -54,11 +53,20 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         ExecutorService service = Executors.newFixedThreadPool(10);
         List<Future<News>> futures = new CopyOnWriteArrayList<>();
         Set<News> news = new CopyOnWriteArraySet<>();
-        newsUrls.forEach(s -> futures.add(service.submit(() -> parser.parsePage(s))));
+        newsUrls.forEach(s -> futures.add(service.submit(() -> {
+            Document doc = connectToPage(s);
+            if (doc != null) {
+                return parser.parsePage(doc);
+            } else {
+                return null;
+            }
+        })));
         err.println("Start parse result");
         futures.parallelStream().forEach(newsFuture -> {
             try {
-                news.add(newsFuture.get());
+                News obj = newsFuture.get();
+                if (obj != null)
+                    news.add(obj);
             } catch (ArrayIndexOutOfBoundsException | InterruptedException | ExecutionException e) {
                 Thread.currentThread().interrupt();
                 e.printStackTrace();
