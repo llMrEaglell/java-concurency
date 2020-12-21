@@ -1,8 +1,8 @@
 package com.newsAgregator.executor;
 
 
-import com.newsAgregator.AgregatorStrategy;
-import com.newsAgregator.KorrespondentAgregatorStrategy;
+import com.newsAgregator.strategy.AgregatorStrategy;
+import com.newsAgregator.strategy.KorrespondentAgregatorStrategy;
 
 public class Main {
     public static void main(String[] args) {

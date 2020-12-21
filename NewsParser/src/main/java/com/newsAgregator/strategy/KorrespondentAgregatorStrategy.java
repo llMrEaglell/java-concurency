@@ -1,4 +1,4 @@
-package com.newsAgregator;
+package com.newsAgregator.strategy;
 
 import com.newsAgregator.crawler.webcrawlers.PageCrawler;
 import com.newsAgregator.dateParser.DateParser;
