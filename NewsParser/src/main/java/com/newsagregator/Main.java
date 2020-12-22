@@ -21,7 +21,6 @@ public class Main {
 
     private static Flyway createFlyway(DataSource dataSource) {
         return Flyway.configure()
-                .locations("filesystem:"+System.getenv("flyway.migrationFolder"))
                 .dataSource(dataSource)
                 .load();
     }
