@@ -8,9 +8,12 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.flywaydb.core.Flyway;
 
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         DataSource dataSource = getDataSource();
         Flyway flyway = createFlyway(dataSource);
         NewsRepository newsRepository = new NewsRepository(dataSource);
@@ -25,15 +28,22 @@ public class Main {
                 .load();
     }
 
-    private static DataSource getDataSource() {
+    private static DataSource getDataSource() throws IOException {
+        Properties cfg = loadProperties();
         HikariConfig hikariConfig = new HikariConfig();
 
-        hikariConfig.setPassword(System.getenv("jdbc.password"));
-        hikariConfig.setUsername(System.getenv("jdbc.username"));
-        hikariConfig.setJdbcUrl(System.getenv("jdbc.url"));
-        hikariConfig.setMaximumPoolSize(Integer.parseInt(System.getenv("jdbc.pool.max.connection")));
+        hikariConfig.setPassword(cfg.getProperty("jdbc.password"));
+        hikariConfig.setUsername(cfg.getProperty(("jdbc.username")));
+        hikariConfig.setJdbcUrl(cfg.getProperty(("jdbc.url")));
+        hikariConfig.setMaximumPoolSize(Integer.parseInt(cfg.getProperty(("jdbc.pool.max.connection"))));
 
         return new HikariDataSource(hikariConfig);
     }
 
+    private static Properties loadProperties() throws IOException {
+        InputStream resource = Main.class.getClassLoader().getResourceAsStream("application.properties");
+        Properties properties = new Properties();
+        properties.load(resource);
+        return properties;
+    }
 }
