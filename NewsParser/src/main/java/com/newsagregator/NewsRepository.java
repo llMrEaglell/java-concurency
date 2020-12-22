@@ -26,7 +26,6 @@ public class NewsRepository {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(SQL_INSERT_ALL_NEWS)) {
             for (News news : allNews) {
-                try {
                     ps.setString(1, news.getTitle());
                     ps.setString(2, news.getText());
                     ps.setString(3, news.getMainImageURL());
@@ -34,9 +33,6 @@ public class NewsRepository {
                     ps.setString(5, news.getDatePublication().toString());
                     ps.setString(6, news.getTags().toString());
                     ps.addBatch();
-                } catch (SQLException throwable) {
-                    throwable.printStackTrace();
-                }
             }
             ps.executeBatch();
         } catch (SQLException e) {
