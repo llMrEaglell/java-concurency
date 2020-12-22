@@ -25,7 +25,7 @@ public class NewsRepository {
     public void saveNews(Set<News> allNews) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(SQL_INSERT_ALL_NEWS)) {
-            allNews.forEach(news -> {
+            for (News news : allNews) {
                 try {
                     ps.setString(1, news.getTitle());
                     ps.setString(2, news.getText());
@@ -37,7 +37,7 @@ public class NewsRepository {
                 } catch (SQLException throwable) {
                     throwable.printStackTrace();
                 }
-            });
+            }
             ps.executeBatch();
         } catch (SQLException e) {
             e.printStackTrace();
