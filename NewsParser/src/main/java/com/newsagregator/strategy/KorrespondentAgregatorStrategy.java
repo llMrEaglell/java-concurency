@@ -1,12 +1,12 @@
 package com.newsagregator.strategy;
 
+import com.newsagregator.FailUrlProcessor;
 import com.newsagregator.FailureTaskProcessing;
 import com.newsagregator.NewsRepository;
 import com.newsagregator.crawler.webcrawlers.PageCrawler;
 import com.newsagregator.news.News;
 import com.newsagregator.parsers.KorrespondentNewsPageParser;
 import com.newsagregator.parsers.Parser;
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -24,12 +24,12 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private static final String POST_ITEM_TITLE = "post-item__title";
     private static final String NEWS_CLASS = "article__title";
     private static final String ITEM_BIG_PHOTO_IMG = "post-item__big-photo-img";
-    private static final String textClasPOST_ITEM_TEXT = "post-item__text";
+    private static final String POST_ITEM_TEXT = "post-item__text";
     private static final String WITH_TIME_CLASS = "post-item__info";
     private static final String POST_ITEM_TAGS_ITEM = "post-item__tags-item";
     private static final int COUNT_RESOURCE_SEMAPHORE = 15;
 
-    private Semaphore semaphore;
+    private final Semaphore semaphore;
     private static LocalDate date = LocalDate.now();
     private static AtomicInteger pageCounter = new AtomicInteger(1);
 
@@ -44,7 +44,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         this.repository = repository;
         crawler = new PageCrawler();
         parser = new KorrespondentNewsPageParser(
-                POST_ITEM_TITLE, ITEM_BIG_PHOTO_IMG, textClasPOST_ITEM_TEXT, WITH_TIME_CLASS, POST_ITEM_TAGS_ITEM);
+                POST_ITEM_TITLE, ITEM_BIG_PHOTO_IMG, POST_ITEM_TEXT, WITH_TIME_CLASS, POST_ITEM_TAGS_ITEM);
     }
 
     @Override
@@ -53,7 +53,8 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         Thread test = new Thread(task);
         test.setDaemon(true);
         test.start();
-
+        FailUrlProcessor failureTaskProcessing = new FailUrlProcessor(failureURLS,1,parser,repository);
+        failureTaskProcessing.check();
         err.println("Start Crawling");
         Set<String> newsUrls = crawlingUrls(count);
         err.println("Start Parsing");
