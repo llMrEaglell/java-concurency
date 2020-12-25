@@ -11,6 +11,7 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -126,9 +127,10 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         urlPage = String.format("%s/%d/%s/%d/p%d/print/",
                 BASE_URL,
                 date.getYear(),
-                DateParser.getMonth(date.getMonthValue()),
+                date.getMonth().toString().toLowerCase(),
                 date.getDayOfMonth(),
                 pageCounter.get());
+        out.println(urlPage);
         return urlPage;
     }
 
