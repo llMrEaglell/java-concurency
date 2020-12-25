@@ -28,6 +28,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private static final String WITH_TIME_CLASS = "post-item__info";
     private static final String POST_ITEM_TAGS_ITEM = "post-item__tags-item";
     private static final int COUNT_RESOURCE_SEMAPHORE = 15;
+    private static final int schendulerPeriodOnMinutes = 1;
 
     private final Semaphore semaphore;
     private static LocalDate date = LocalDate.now();
@@ -53,7 +54,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         Thread test = new Thread(task);
         test.setDaemon(true);
         test.start();
-        FailUrlProcessor failureTaskProcessing = new FailUrlProcessor(failureURLS, 1, parser, repository);
+        FailUrlProcessor failureTaskProcessing = new FailUrlProcessor(failureURLS, schendulerPeriodOnMinutes, parser, repository);
         failureTaskProcessing.check();
         err.println("Start Crawling");
         Set<String> newsUrls = crawlingUrls(count);
