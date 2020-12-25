@@ -26,7 +26,8 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private static final String textClasPOST_ITEM_TEXT = "post-item__text";
     private static final String WITH_TIME_CLASS = "post-item__info";
     private static final String POST_ITEM_TAGS_ITEM = "post-item__tags-item";
-
+    private static final int COUNT_RESOURCE_SEMAPHORE = 20;
+    private Semaphore semaphore;
     private static LocalDate date = LocalDate.now();
     private static AtomicInteger pageCounter = new AtomicInteger(1);
 
@@ -37,6 +38,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private Set<String> failureURLS = new ConcurrentSkipListSet<>();
 
     public KorrespondentAgregatorStrategy(NewsRepository repository) {
+        semaphore = new Semaphore(COUNT_RESOURCE_SEMAPHORE);
         this.repository = repository;
         crawler = new PageCrawler();
         parser = new KorrespondentNewsPageParser(
@@ -45,7 +47,6 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
 
     @Override
     public void parseAndSaveNews(int count) {
-
         Runnable task = new FailureTaskProcessing();
         Thread test = new Thread(task);
         test.setDaemon(true);
@@ -53,7 +54,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
 
         err.println("Start Crawling");
         Set<String> newsUrls = crawlingUrls(count);
-        err.println("Stop Crawling");
+        err.println("Start Parsing");
         Set<News> news = councurencyParse(newsUrls);
         err.println("Start saving");
         out.println("Successful:"+news.size());
@@ -70,6 +71,11 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(CopyOnWriteArraySet::new));
         service.shutdown();
+        await(service);
+        return news;
+    }
+
+    private void await(ExecutorService service) {
         try {
             if(!service.awaitTermination(20, TimeUnit.SECONDS))
                 err.println("Threads didn't finish in 20 seconds!");
@@ -77,11 +83,11 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
             Thread.currentThread().interrupt();
             e.printStackTrace();
         }
-        return news;
     }
 
     private News getNews(Future<News> newsFuture) {
         try {
+            err.println(Thread.currentThread().getName());
             News obj = newsFuture.get(10,TimeUnit.SECONDS);
             if (obj != null)
                 return obj;
@@ -166,7 +172,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
                     .referrer("http://www.google.com")
                     .get();
         } catch (IOException e) {
-            e.printStackTrace();
+            err.println("Can't connect to:"+url);
         }
         return doc;
     }
