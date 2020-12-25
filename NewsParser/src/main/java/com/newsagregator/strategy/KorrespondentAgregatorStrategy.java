@@ -9,7 +9,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.*;
