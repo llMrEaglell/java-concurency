@@ -61,13 +61,14 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
                 .map(this::getNews)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(CopyOnWriteArraySet::new));
+        service.shutdown();
         try {
-            service.awaitTermination(10, TimeUnit.SECONDS);
+            if(!service.awaitTermination(20, TimeUnit.SECONDS))
+                err.println("Threads didn't finish in 20 seconds!");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             e.printStackTrace();
         }
-        service.shutdown();
         return news;
     }
 
