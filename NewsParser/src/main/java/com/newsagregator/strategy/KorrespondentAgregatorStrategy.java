@@ -47,6 +47,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         err.println("Stop Crawling");
         Set<News> news = councurencyParse(newsUrls);
         err.println("Start saving");
+        out.println("Successful:"+news.size());
         repository.saveNews(news);
     }
 
@@ -147,7 +148,11 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private Document connectToPage(String url) {
         Document doc = null;
         try {
-            doc = Jsoup.connect(url).timeout(10000).get();
+            doc = Jsoup.connect(url)
+                    .timeout(10000)
+                    .userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
+                    .referrer("http://www.google.com")
+                    .get();
         } catch (IOException e) {
             e.printStackTrace();
         }
