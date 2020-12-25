@@ -6,6 +6,7 @@ import com.newsagregator.crawler.webcrawlers.PageCrawler;
 import com.newsagregator.news.News;
 import com.newsagregator.parsers.KorrespondentNewsPageParser;
 import com.newsagregator.parsers.Parser;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -26,7 +27,8 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private static final String textClasPOST_ITEM_TEXT = "post-item__text";
     private static final String WITH_TIME_CLASS = "post-item__info";
     private static final String POST_ITEM_TAGS_ITEM = "post-item__tags-item";
-    private static final int COUNT_RESOURCE_SEMAPHORE = 20;
+    private static final int COUNT_RESOURCE_SEMAPHORE = 15;
+
     private Semaphore semaphore;
     private static LocalDate date = LocalDate.now();
     private static AtomicInteger pageCounter = new AtomicInteger(1);
@@ -88,7 +90,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private News getNews(Future<News> newsFuture) {
         try {
             err.println(Thread.currentThread().getName());
-            News obj = newsFuture.get(10,TimeUnit.SECONDS);
+            News obj = newsFuture.get(15,TimeUnit.SECONDS);
             if (obj != null)
                 return obj;
         } catch (ArrayIndexOutOfBoundsException | InterruptedException | ExecutionException | TimeoutException e) {
@@ -101,7 +103,11 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private CopyOnWriteArrayList<Future<News>> getFutureNews(Set<String> newsUrls, ExecutorService service) {
         return newsUrls.stream()
                 .map(s -> service.submit(() -> {
+                    semaphore.acquire();
+                    err.println(semaphore.availablePermits());
                     Document doc = connectToPage(s);
+                    semaphore.release();
+                    err.println(semaphore.availablePermits());
                     if (doc != null) {
                         return parser.parsePage(doc);
                     } else {
@@ -168,9 +174,8 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         try {
             doc = Jsoup.connect(url)
                     .timeout(10000)
-                    .userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
-                    .referrer("http://www.google.com")
-                    .get();
+                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36")
+                    .referrer("http://www.google.com").get();
         } catch (IOException e) {
             err.println("Can't connect to:"+url);
         }
