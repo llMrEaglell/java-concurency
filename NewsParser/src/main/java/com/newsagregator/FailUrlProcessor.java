@@ -13,7 +13,7 @@ import java.util.concurrent.*;
 import static java.lang.System.err;
 
 public class FailUrlProcessor {
-    private final int time;
+    private final int timeStart;
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private Set<String> urls;
     private Parser parser;
@@ -21,7 +21,7 @@ public class FailUrlProcessor {
 
     public FailUrlProcessor(Set<String> urls, int timeOnMinutes, Parser parser, NewsRepository repository) {
         this.repository = repository;
-        this.time = timeOnMinutes;
+        this.timeStart = timeOnMinutes;
         this.urls = urls;
         this.parser = parser;
     }
@@ -43,12 +43,16 @@ public class FailUrlProcessor {
                 err.println("Failure urls not found");
             }
         };
-        final ScheduledFuture<?> taskHandle = scheduler.scheduleAtFixedRate(task, time, time, TimeUnit.MINUTES);
-        scheduler.schedule(() -> {
-            taskHandle.cancel(true);
-        }, time, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(task, timeStart, timeStart, TimeUnit.MINUTES);
+    }
 
-
+    public void shutdown(){
+        scheduler.shutdown();
+        try {
+            scheduler.awaitTermination(1, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private Document connectToPage(String url) {

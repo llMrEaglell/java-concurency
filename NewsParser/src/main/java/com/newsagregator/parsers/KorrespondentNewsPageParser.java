@@ -10,6 +10,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.lang.System.*;
+
 public class KorrespondentNewsPageParser implements Parser {
     private final String titleClass;
     private final String mainImageClass;
@@ -35,7 +37,8 @@ public class KorrespondentNewsPageParser implements Parser {
         try {
              date = dateRow.split(",")[1];
         }catch (ArrayIndexOutOfBoundsException e){
-            System.err.println(dateRow);
+            err.println(dateRow);
+            err.println(doc.location());
         }
         LocalDate localDate = DateParser.parse(date);
         List<String> tags = parseTags(doc, tagsClass);

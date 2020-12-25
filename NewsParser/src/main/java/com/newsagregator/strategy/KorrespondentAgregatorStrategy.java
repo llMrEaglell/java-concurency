@@ -53,15 +53,17 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         Thread test = new Thread(task);
         test.setDaemon(true);
         test.start();
-        FailUrlProcessor failureTaskProcessing = new FailUrlProcessor(failureURLS,1,parser,repository);
+        FailUrlProcessor failureTaskProcessing = new FailUrlProcessor(failureURLS, 1, parser, repository);
         failureTaskProcessing.check();
         err.println("Start Crawling");
         Set<String> newsUrls = crawlingUrls(count);
         err.println("Start Parsing");
         Set<News> news = councurencyParse(newsUrls);
         err.println("Start saving");
-        out.println("Successful:"+news.size());
+        out.println("Successful:" + news.size());
+        out.println("Failure:" + failureURLS.size());
         repository.saveNews(news);
+        failureTaskProcessing.shutdown();
     }
 
     private Set<News> councurencyParse(Set<String> newsUrls) {
@@ -80,7 +82,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
 
     private void await(ExecutorService service) {
         try {
-            if(!service.awaitTermination(20, TimeUnit.SECONDS))
+            if (!service.awaitTermination(40, TimeUnit.SECONDS))
                 err.println("Threads didn't finish in 20 seconds!");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -90,7 +92,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
 
     private News getNews(Future<News> newsFuture) {
         try {
-            News obj = newsFuture.get(15,TimeUnit.SECONDS);
+            News obj = newsFuture.get(30, TimeUnit.SECONDS);
             if (obj != null)
                 return obj;
         } catch (ArrayIndexOutOfBoundsException | InterruptedException | ExecutionException | TimeoutException e) {
@@ -175,7 +177,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36")
                     .referrer("http://www.google.com").get();
         } catch (IOException e) {
-            err.println("Can't connect to:"+url);
+            err.println("Can't connect to:" + url);
         }
         return doc;
     }
