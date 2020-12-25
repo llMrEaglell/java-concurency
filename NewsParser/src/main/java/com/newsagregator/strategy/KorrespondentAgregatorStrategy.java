@@ -1,5 +1,6 @@
 package com.newsagregator.strategy;
 
+import com.newsagregator.FailureTaskProcessing;
 import com.newsagregator.NewsRepository;
 import com.newsagregator.crawler.webcrawlers.PageCrawler;
 import com.newsagregator.news.News;
@@ -33,6 +34,8 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private PageCrawler crawler;
     private Parser parser;
 
+    private Set<String> failureURLS = new ConcurrentSkipListSet<>();
+
     public KorrespondentAgregatorStrategy(NewsRepository repository) {
         this.repository = repository;
         crawler = new PageCrawler();
@@ -42,6 +45,12 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
 
     @Override
     public void parseAndSaveNews(int count) {
+
+        Runnable task = new FailureTaskProcessing();
+        Thread test = new Thread(task);
+        test.setDaemon(true);
+        test.start();
+
         err.println("Start Crawling");
         Set<String> newsUrls = crawlingUrls(count);
         err.println("Stop Crawling");
@@ -90,6 +99,8 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
                     if (doc != null) {
                         return parser.parsePage(doc);
                     } else {
+                        FailureTaskProcessing.check();
+                        failureURLS.add(s);
                         return null;
                     }
                 }))
