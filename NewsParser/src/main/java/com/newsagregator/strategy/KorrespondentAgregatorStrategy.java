@@ -9,6 +9,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.*;
@@ -72,10 +73,10 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
 
     private News getNews(Future<News> newsFuture) {
         try {
-            News obj = newsFuture.get();
+            News obj = newsFuture.get(10,TimeUnit.SECONDS);
             if (obj != null)
                 return obj;
-        } catch (ArrayIndexOutOfBoundsException | InterruptedException | ExecutionException e) {
+        } catch (ArrayIndexOutOfBoundsException | InterruptedException | ExecutionException | TimeoutException e) {
             Thread.currentThread().interrupt();
             e.printStackTrace();
         }
