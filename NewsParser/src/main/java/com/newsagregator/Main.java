@@ -10,7 +10,6 @@ import org.flywaydb.core.Flyway;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDate;
 import java.util.Properties;
 
 public class Main {

@@ -2,7 +2,6 @@ package com.newsagregator.strategy;
 
 import com.newsagregator.NewsRepository;
 import com.newsagregator.crawler.webcrawlers.PageCrawler;
-import com.newsagregator.dateParser.DateParser;
 import com.newsagregator.news.News;
 import com.newsagregator.parsers.KorrespondentNewsPageParser;
 import com.newsagregator.parsers.Parser;
@@ -11,10 +10,10 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static java.lang.System.*;
 
@@ -26,8 +25,10 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private static final String textClasPOST_ITEM_TEXT = "post-item__text";
     private static final String WITH_TIME_CLASS = "post-item__info";
     private static final String POST_ITEM_TAGS_ITEM = "post-item__tags-item";
+
     private static LocalDate date = LocalDate.now();
     private static AtomicInteger pageCounter = new AtomicInteger(1);
+
     private final NewsRepository repository;
     private PageCrawler crawler;
     private Parser parser;
@@ -51,28 +52,13 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
 
     private Set<News> councurencyParse(Set<String> newsUrls) {
         err.println("Start paring");
-        ExecutorService service = Executors.newFixedThreadPool(10);
-        List<Future<News>> futures = new CopyOnWriteArrayList<>();
-        Set<News> news = new CopyOnWriteArraySet<>();
-        newsUrls.forEach(s -> futures.add(service.submit(() -> {
-            Document doc = connectToPage(s);
-            if (doc != null) {
-                return parser.parsePage(doc);
-            } else {
-                return null;
-            }
-        })));
+        ExecutorService service = Executors.newCachedThreadPool();
+        List<Future<News>> futures = getFutureNews(newsUrls, service);
         err.println("Start parse result");
-        futures.parallelStream().forEach(newsFuture -> {
-            try {
-                News obj = newsFuture.get();
-                if (obj != null)
-                    news.add(obj);
-            } catch (ArrayIndexOutOfBoundsException | InterruptedException | ExecutionException e) {
-                Thread.currentThread().interrupt();
-                e.printStackTrace();
-            }
-        });
+        Set<News> news = futures.parallelStream()
+                .map(this::getNews)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(CopyOnWriteArraySet::new));
         try {
             service.awaitTermination(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
@@ -81,6 +67,31 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         }
         service.shutdown();
         return news;
+    }
+
+    private News getNews(Future<News> newsFuture) {
+        try {
+            News obj = newsFuture.get();
+            if (obj != null)
+                return obj;
+        } catch (ArrayIndexOutOfBoundsException | InterruptedException | ExecutionException e) {
+            Thread.currentThread().interrupt();
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private CopyOnWriteArrayList<Future<News>> getFutureNews(Set<String> newsUrls, ExecutorService service) {
+        return newsUrls.stream()
+                .map(s -> service.submit(() -> {
+                    Document doc = connectToPage(s);
+                    if (doc != null) {
+                        return parser.parsePage(doc);
+                    } else {
+                        return null;
+                    }
+                }))
+                .collect(Collectors.toCollection(CopyOnWriteArrayList::new));
     }
 
     private Set<String> crawlingUrls(int count) {
@@ -130,7 +141,6 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
                 date.getMonth().toString().toLowerCase(),
                 date.getDayOfMonth(),
                 pageCounter.get());
-        out.println(urlPage);
         return urlPage;
     }
 
