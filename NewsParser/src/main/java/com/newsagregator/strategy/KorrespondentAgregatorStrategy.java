@@ -90,7 +90,6 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
 
     private News getNews(Future<News> newsFuture) {
         try {
-            err.println(Thread.currentThread().getName());
             News obj = newsFuture.get(15,TimeUnit.SECONDS);
             if (obj != null)
                 return obj;
@@ -105,10 +104,8 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         return newsUrls.stream()
                 .map(s -> service.submit(() -> {
                     semaphore.acquire();
-                    err.println(semaphore.availablePermits());
                     Document doc = connectToPage(s);
                     semaphore.release();
-                    err.println(semaphore.availablePermits());
                     if (doc != null) {
                         return parser.parsePage(doc);
                     } else {
