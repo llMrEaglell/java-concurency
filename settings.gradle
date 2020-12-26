@@ -1,2 +1,3 @@
 rootProject.name = 'spdu2021-java-concurency'
+include 'NewsParser'
 

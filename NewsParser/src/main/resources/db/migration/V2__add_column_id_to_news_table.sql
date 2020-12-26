@@ -1,0 +1,1 @@
+ALTER TABLE news ADD id SERIAL primary key
