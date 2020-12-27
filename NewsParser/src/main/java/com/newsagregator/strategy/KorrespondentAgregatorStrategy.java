@@ -175,7 +175,6 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         try {
             doc = Jsoup.connect(url)
                     .timeout(10000)
-                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36")
                     .referrer("http://www.google.com").get();
         } catch (IOException e) {
             err.println("Can't connect to:" + url);
