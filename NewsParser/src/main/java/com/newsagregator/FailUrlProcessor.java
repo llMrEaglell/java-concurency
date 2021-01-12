@@ -51,6 +51,7 @@ public class FailUrlProcessor {
         try {
             scheduler.awaitTermination(1, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             e.printStackTrace();
         }
     }

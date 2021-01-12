@@ -35,6 +35,7 @@ public class NewsRepository {
                     ps.addBatch();
             }
             ps.executeBatch();
+            System.out.println("Save news to repository:"+allNews.size());
         } catch (SQLException e) {
             e.printStackTrace();
         }

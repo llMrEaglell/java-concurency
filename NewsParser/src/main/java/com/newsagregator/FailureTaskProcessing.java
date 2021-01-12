@@ -14,6 +14,7 @@ public class FailureTaskProcessing implements Runnable {
                 System.err.println("HOP");
                 reset();
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 e.printStackTrace();
             }
         }

@@ -54,15 +54,20 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         Thread test = new Thread(task);
         test.setDaemon(true);
         test.start();
+
         FailUrlProcessor failureTaskProcessing = new FailUrlProcessor(failureURLS, schendulerPeriodOnMinutes, parser, repository);
         failureTaskProcessing.check();
+
         err.println("Start Crawling");
         Set<String> newsUrls = crawlingUrls(count);
+
         err.println("Start Parsing");
         Set<News> news = councurencyParse(newsUrls);
+
         err.println("Start saving");
         out.println("Successful:" + news.size());
         out.println("Failure:" + failureURLS.size());
+
         repository.saveNews(news);
         failureTaskProcessing.shutdown();
     }
@@ -93,7 +98,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
 
     private News getNews(Future<News> newsFuture) {
         try {
-            News obj = newsFuture.get(30, TimeUnit.SECONDS);
+            News obj = newsFuture.get(1, TimeUnit.MINUTES);
             if (obj != null)
                 return obj;
         } catch (ArrayIndexOutOfBoundsException | InterruptedException | ExecutionException | TimeoutException e) {

@@ -1,16 +1,14 @@
 package com.newsagregator.parsers;
 
-import com.newsagregator.news.News;
 import com.newsagregator.dateParser.DateParser;
-import org.jsoup.Jsoup;
+import com.newsagregator.news.News;
 import org.jsoup.nodes.Document;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.lang.System.*;
+import static java.lang.System.err;
 
 public class KorrespondentNewsPageParser implements Parser {
     private final String titleClass;
