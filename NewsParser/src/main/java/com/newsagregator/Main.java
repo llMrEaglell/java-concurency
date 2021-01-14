@@ -2,7 +2,7 @@ package com.newsagregator;
 
 
 import com.newsagregator.strategy.AggregatorStrategy;
-import com.newsagregator.strategy.KorrespondentAggregatorStrategy;
+import com.newsagregator.strategy.NewsAggregator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.flywaydb.core.Flyway;
@@ -20,7 +20,7 @@ public class Main {
         NewsRepository newsRepository = new NewsRepository(dataSource);
         NewsSiteProperties properties = new KorrepsondentProperties("korrespondent.properties");
         NewsSiteURLGenerator generator = new KorrespondentURLGenerator(properties, LocalDate.now(), 1);
-        AggregatorStrategy strategy = new KorrespondentAggregatorStrategy(newsRepository, properties, generator);
+        AggregatorStrategy strategy = new NewsAggregator(newsRepository, properties, generator);
         flyway.migrate();
         strategy.parseAndSaveNews(100);
     }

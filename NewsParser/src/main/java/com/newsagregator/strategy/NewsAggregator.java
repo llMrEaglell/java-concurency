@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import static java.lang.System.err;
 import static java.lang.System.out;
 
-public class KorrespondentAggregatorStrategy implements AggregatorStrategy {
+public class NewsAggregator implements AggregatorStrategy {
     private final NewsSiteProperties properties;
     private static final int COUNT_RESOURCE_SEMAPHORE = 15;
     private static final int SCHEDULER_PERIOD_ON_MINUTES = 1;
@@ -33,7 +33,7 @@ public class KorrespondentAggregatorStrategy implements AggregatorStrategy {
     private Parser parser;
     private Set<String> failureURLS = new ConcurrentSkipListSet<>();
 
-    public KorrespondentAggregatorStrategy(NewsRepository repository, NewsSiteProperties properties, NewsSiteURLGenerator urlGenerator) {
+    public NewsAggregator(NewsRepository repository, NewsSiteProperties properties, NewsSiteURLGenerator urlGenerator) {
         semaphore = new Semaphore(COUNT_RESOURCE_SEMAPHORE);
         this.repository = repository;
         this.properties = properties;
