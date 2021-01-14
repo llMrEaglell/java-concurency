@@ -10,6 +10,7 @@ import org.flywaydb.core.Flyway;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.Properties;
 
 public class Main {
@@ -18,7 +19,8 @@ public class Main {
         Flyway flyway = createFlyway(dataSource);
         NewsRepository newsRepository = new NewsRepository(dataSource);
         NewsSiteProperties properties = new KorrepsondentProperties("korrespondent.properties");
-        AggregatorStrategy strategy = new KorrespondentAggregatorStrategy(newsRepository, properties);
+        NewsSiteURLGenerator generator = new KorrespondentURLGenerator(properties, LocalDate.now(), 1);
+        AggregatorStrategy strategy = new KorrespondentAggregatorStrategy(newsRepository, properties, generator);
         flyway.migrate();
         strategy.parseAndSaveNews(100);
     }
