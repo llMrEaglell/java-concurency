@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.System.*;
 
-public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
+public class KorrespondentAggregatorStrategy implements AggregatorStrategy {
     private static final String BASE_URL = "https://korrespondent.net/all/";
     private static final String POST_ITEM_TITLE = "post-item__title";
     private static final String NEWS_CLASS = "article__title";
@@ -40,7 +40,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
 
     private Set<String> failureURLS = new ConcurrentSkipListSet<>();
 
-    public KorrespondentAgregatorStrategy(NewsRepository repository) {
+    public KorrespondentAggregatorStrategy(NewsRepository repository) {
         semaphore = new Semaphore(COUNT_RESOURCE_SEMAPHORE);
         this.repository = repository;
         crawler = new PageCrawler();

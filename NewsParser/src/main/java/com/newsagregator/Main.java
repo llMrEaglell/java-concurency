@@ -1,8 +1,8 @@
 package com.newsagregator;
 
 
-import com.newsagregator.strategy.AgregatorStrategy;
-import com.newsagregator.strategy.KorrespondentAgregatorStrategy;
+import com.newsagregator.strategy.AggregatorStrategy;
+import com.newsagregator.strategy.KorrespondentAggregatorStrategy;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.flywaydb.core.Flyway;
@@ -17,9 +17,9 @@ public class Main {
         DataSource dataSource = getDataSource();
         Flyway flyway = createFlyway(dataSource);
         NewsRepository newsRepository = new NewsRepository(dataSource);
-        AgregatorStrategy strategy = new KorrespondentAgregatorStrategy(newsRepository);
+        AggregatorStrategy strategy = new KorrespondentAggregatorStrategy(newsRepository);
         flyway.migrate();
-        strategy.parseAndSaveNews(1000);
+        strategy.parseAndSaveNews(100);
     }
 
     private static Flyway createFlyway(DataSource dataSource) {

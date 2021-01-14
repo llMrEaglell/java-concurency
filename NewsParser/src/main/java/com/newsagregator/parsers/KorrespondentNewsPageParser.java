@@ -32,14 +32,17 @@ public class KorrespondentNewsPageParser implements Parser {
         String text = parseText(doc, textClass);
         String dateRow = parseDate(doc, withTimeClass);
         String date = " Сегодня";
+
         try {
-             date = dateRow.split(",")[1];
-        }catch (ArrayIndexOutOfBoundsException e){
+            date = dateRow.split(",")[1];
+        } catch (ArrayIndexOutOfBoundsException e) {
             err.println(dateRow);
             err.println(doc.location());
         }
+
         LocalDate localDate = DateParser.parse(date);
         List<String> tags = parseTags(doc, tagsClass);
+
         return new News(title, text, localDate, mainImageURL, tags);
     }
 

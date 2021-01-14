@@ -1,6 +1,6 @@
 package com.newsagregator.strategy;
 
 
-public interface AgregatorStrategy {
+public interface AggregatorStrategy {
     void parseAndSaveNews(int count);
 }
