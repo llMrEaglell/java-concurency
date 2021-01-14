@@ -12,6 +12,7 @@ public class KorrepsondentProperties implements NewsSiteProperties {
     private final String WITH_TIME_CLASS;
     private final String POST_ITEM_TAGS_ITEM;
     private final String FILTER;
+    private final int CONNECTION_LIMIT;
 
     public KorrepsondentProperties(String fileName) throws IOException {
         Properties cfg = loadProperties(fileName);
@@ -23,6 +24,7 @@ public class KorrepsondentProperties implements NewsSiteProperties {
         WITH_TIME_CLASS = cfg.getProperty("post.time.class");
         POST_ITEM_TAGS_ITEM = cfg.getProperty("post.item.tags");
         FILTER = cfg.getProperty("site.filter");
+        CONNECTION_LIMIT = Integer.parseInt(cfg.getProperty("site.connection.limit"));
     }
 
     @Override
@@ -58,6 +60,11 @@ public class KorrepsondentProperties implements NewsSiteProperties {
     @Override
     public String getTagsItemClass() {
         return POST_ITEM_TAGS_ITEM;
+    }
+
+    @Override
+    public int getConnectionLimit() {
+        return CONNECTION_LIMIT;
     }
 
     @Override

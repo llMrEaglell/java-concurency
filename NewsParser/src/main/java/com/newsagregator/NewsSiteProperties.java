@@ -12,6 +12,7 @@ public interface NewsSiteProperties {
     String getPostItemText();
     String getTimeClass();
     String getTagsItemClass();
+    int getConnectionLimit();
 
     default Properties loadProperties(String fileName) throws IOException {
         InputStream resource = Main.class.getClassLoader().getResourceAsStream(fileName);

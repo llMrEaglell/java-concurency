@@ -21,7 +21,6 @@ import static java.lang.System.out;
 
 public class NewsAggregator implements AggregatorStrategy {
     private final NewsSiteProperties properties;
-    private static final int COUNT_RESOURCE_SEMAPHORE = 15;
     private static final int SCHEDULER_PERIOD_ON_MINUTES = 1;
 
     private final Semaphore semaphore;
@@ -34,7 +33,8 @@ public class NewsAggregator implements AggregatorStrategy {
     private Set<String> failureURLS = new ConcurrentSkipListSet<>();
 
     public NewsAggregator(NewsRepository repository, NewsSiteProperties properties, NewsSiteURLGenerator urlGenerator) {
-        semaphore = new Semaphore(COUNT_RESOURCE_SEMAPHORE);
+        int connectionLimit = properties.getConnectionLimit();
+        semaphore = new Semaphore(connectionLimit);
         this.repository = repository;
         this.properties = properties;
         this.urlGenerator = urlGenerator;
