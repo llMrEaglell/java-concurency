@@ -28,8 +28,8 @@ public class NewsAggregator implements AggregatorStrategy {
     private final NewsSiteURLGenerator urlGenerator;
     private final NewsRepository repository;
 
-    private PageCrawler crawler;
-    private Parser parser;
+    private final PageCrawler crawler;
+    private final Parser parser;
     private Set<String> failureURLS = new ConcurrentSkipListSet<>();
 
     public NewsAggregator(NewsRepository repository, NewsSiteProperties properties, NewsSiteURLGenerator urlGenerator) {
@@ -135,7 +135,7 @@ public class NewsAggregator implements AggregatorStrategy {
         String finalUrl = url;
         Document page = connectToPage(finalUrl);
         if (page != null) {
-            Set<String> urls = crawler.getPages(page,properties.getNewsClass(), properties.getFilter());
+            Set<String> urls = crawler.getPages(page, properties.getNewsClass(), properties.getFilter());
             if (urls.isEmpty()) {
                 urlGenerator.minusDay();
                 urlGenerator.setCounterToStart();
