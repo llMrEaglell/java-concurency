@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
 import static java.lang.System.*;
 
 public class KorrespondentAggregatorStrategy implements AggregatorStrategy {
-    private NewsSiteProperties properties;
+    private final NewsSiteProperties properties;
     private static final int COUNT_RESOURCE_SEMAPHORE = 15;
-    private static final int schendulerPeriodOnMinutes = 1;
+    private static final int SCHEDULER_PERIOD_ON_MINUTES = 1;
 
     private final Semaphore semaphore;
     private static LocalDate date = LocalDate.now();
@@ -52,7 +52,7 @@ public class KorrespondentAggregatorStrategy implements AggregatorStrategy {
         test.setDaemon(true);
         test.start();
 
-        FailUrlProcessor failureTaskProcessing = new FailUrlProcessor(failureURLS, schendulerPeriodOnMinutes, parser, repository);
+        FailUrlProcessor failureTaskProcessing = new FailUrlProcessor(failureURLS, SCHEDULER_PERIOD_ON_MINUTES, parser, repository);
         failureTaskProcessing.check();
 
         err.println("Start Crawling");
