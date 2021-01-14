@@ -17,7 +17,8 @@ public class Main {
         DataSource dataSource = getDataSource();
         Flyway flyway = createFlyway(dataSource);
         NewsRepository newsRepository = new NewsRepository(dataSource);
-        AggregatorStrategy strategy = new KorrespondentAggregatorStrategy(newsRepository);
+        NewsSiteProperties properties = new KorrepsondentProperties("korrespondent.properties");
+        AggregatorStrategy strategy = new KorrespondentAggregatorStrategy(newsRepository, properties);
         flyway.migrate();
         strategy.parseAndSaveNews(100);
     }

@@ -3,6 +3,7 @@ package com.newsagregator.strategy;
 import com.newsagregator.FailUrlProcessor;
 import com.newsagregator.FailureTaskProcessing;
 import com.newsagregator.NewsRepository;
+import com.newsagregator.NewsSiteProperties;
 import com.newsagregator.crawler.webcrawlers.PageCrawler;
 import com.newsagregator.news.News;
 import com.newsagregator.parsers.KorrespondentNewsPageParser;
@@ -20,13 +21,7 @@ import java.util.stream.Collectors;
 import static java.lang.System.*;
 
 public class KorrespondentAggregatorStrategy implements AggregatorStrategy {
-    private static final String BASE_URL = "https://korrespondent.net/all/";
-    private static final String POST_ITEM_TITLE = "post-item__title";
-    private static final String NEWS_CLASS = "article__title";
-    private static final String ITEM_BIG_PHOTO_IMG = "post-item__big-photo-img";
-    private static final String POST_ITEM_TEXT = "post-item__text";
-    private static final String WITH_TIME_CLASS = "post-item__info";
-    private static final String POST_ITEM_TAGS_ITEM = "post-item__tags-item";
+    private NewsSiteProperties properties;
     private static final int COUNT_RESOURCE_SEMAPHORE = 15;
     private static final int schendulerPeriodOnMinutes = 1;
 
@@ -40,12 +35,14 @@ public class KorrespondentAggregatorStrategy implements AggregatorStrategy {
 
     private Set<String> failureURLS = new ConcurrentSkipListSet<>();
 
-    public KorrespondentAggregatorStrategy(NewsRepository repository) {
+    public KorrespondentAggregatorStrategy(NewsRepository repository, NewsSiteProperties properties) {
         semaphore = new Semaphore(COUNT_RESOURCE_SEMAPHORE);
         this.repository = repository;
+        this.properties = properties;
         crawler = new PageCrawler();
         parser = new KorrespondentNewsPageParser(
-                POST_ITEM_TITLE, ITEM_BIG_PHOTO_IMG, POST_ITEM_TEXT, WITH_TIME_CLASS, POST_ITEM_TAGS_ITEM);
+                properties.getPostItemTitle(), properties.getItemBigPhotoIMG(),
+                properties.getPostItemText(), properties.getTimeClass(), properties.getTagsItemClass());
     }
 
     @Override
@@ -139,7 +136,7 @@ public class KorrespondentAggregatorStrategy implements AggregatorStrategy {
         String finalUrl = url;
         Document page = connectToPage(finalUrl);
         if (page != null) {
-            Set<String> urls = crawler.getPages(page, NEWS_CLASS, "https://korrespondent.net/");
+            Set<String> urls = crawler.getPages(page,properties.getNewsClass(), "https://korrespondent.net/");
             if (urls.isEmpty()) {
                 date = date.minusDays(1);
                 pageCounter.set(1);
@@ -167,7 +164,7 @@ public class KorrespondentAggregatorStrategy implements AggregatorStrategy {
     private String getUrl() {
         String urlPage;
         urlPage = String.format("%s/%d/%s/%d/p%d/print/",
-                BASE_URL,
+                properties.getBaseURL(),
                 date.getYear(),
                 date.getMonth().toString().toLowerCase(),
                 date.getDayOfMonth(),
