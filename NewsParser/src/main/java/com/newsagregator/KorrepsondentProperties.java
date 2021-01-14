@@ -11,6 +11,7 @@ public class KorrepsondentProperties implements NewsSiteProperties {
     private final String POST_ITEM_TEXT;
     private final String WITH_TIME_CLASS;
     private final String POST_ITEM_TAGS_ITEM;
+    private final String FILTER;
 
     public KorrepsondentProperties(String fileName) throws IOException {
         Properties cfg = loadProperties(fileName);
@@ -21,6 +22,7 @@ public class KorrepsondentProperties implements NewsSiteProperties {
         POST_ITEM_TEXT = cfg.getProperty("post.item.text");
         WITH_TIME_CLASS = cfg.getProperty("post.time.class");
         POST_ITEM_TAGS_ITEM = cfg.getProperty("post.item.tags");
+        FILTER = cfg.getProperty("site.filter");
     }
 
     @Override
@@ -56,5 +58,10 @@ public class KorrepsondentProperties implements NewsSiteProperties {
     @Override
     public String getTagsItemClass() {
         return POST_ITEM_TAGS_ITEM;
+    }
+
+    @Override
+    public String getFilter() {
+        return FILTER;
     }
 }

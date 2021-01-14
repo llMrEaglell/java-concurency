@@ -136,7 +136,7 @@ public class KorrespondentAggregatorStrategy implements AggregatorStrategy {
         String finalUrl = url;
         Document page = connectToPage(finalUrl);
         if (page != null) {
-            Set<String> urls = crawler.getPages(page,properties.getNewsClass(), "https://korrespondent.net/");
+            Set<String> urls = crawler.getPages(page,properties.getNewsClass(), properties.getFilter());
             if (urls.isEmpty()) {
                 date = date.minusDays(1);
                 pageCounter.set(1);

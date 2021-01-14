@@ -19,4 +19,6 @@ public interface NewsSiteProperties {
         properties.load(resource);
         return properties;
     }
+
+    String getFilter();
 }
