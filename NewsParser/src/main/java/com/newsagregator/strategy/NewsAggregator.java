@@ -136,6 +136,7 @@ public class NewsAggregator implements AggregatorStrategy {
         Document page = connectToPage(finalUrl);
         if (page != null) {
             Set<String> urls = crawler.getPages(page, properties.getNewsClass(), properties.getFilter());
+            urls = urlGenerator.fixShortURL(urls);
             if (urls.isEmpty()) {
                 urlGenerator.minusDay();
                 urlGenerator.setCounterToStart();

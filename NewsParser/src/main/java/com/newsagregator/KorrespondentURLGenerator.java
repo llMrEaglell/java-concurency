@@ -1,9 +1,11 @@
 package com.newsagregator;
 
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
-public class KorrespondentURLGenerator implements NewsSiteURLGenerator{
+public class KorrespondentURLGenerator implements NewsSiteURLGenerator {
     private final NewsSiteProperties properties;
     private LocalDate date;
     private final AtomicInteger pageCounter;
@@ -39,6 +41,20 @@ public class KorrespondentURLGenerator implements NewsSiteURLGenerator{
     @Override
     public int nextPageCounter() {
         return pageCounter.incrementAndGet();
+    }
+
+    @Override
+    public Set<String> fixShortURL(Set<String> urls) {
+        return urls.stream()
+                .map(s -> {
+                    if (s.startsWith(properties.getFilter())) {
+                        return s;
+                    } else {
+                        String newUrl = properties.getFilter();
+                        return newUrl + s;
+                    }
+                })
+                .collect(Collectors.toSet());
     }
 
 
