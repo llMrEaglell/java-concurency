@@ -1,6 +1,8 @@
 package com.newsagregator;
 
 
+import com.newsagregator.parsers.Parser;
+import com.newsagregator.parsers.StranaNewsPageParser;
 import com.newsagregator.strategy.AggregatorStrategy;
 import com.newsagregator.strategy.NewsAggregator;
 import com.zaxxer.hikari.HikariConfig;
@@ -18,11 +20,26 @@ public class Main {
         DataSource dataSource = getDataSource();
         Flyway flyway = createFlyway(dataSource);
         NewsRepository newsRepository = new NewsRepository(dataSource);
-        NewsSiteProperties properties = new KorrepsondentProperties("korrespondent.properties");
-        NewsSiteURLGenerator generator = new KorrespondentURLGenerator(properties, LocalDate.now(), 1);
-        AggregatorStrategy strategy = new NewsAggregator(newsRepository, properties, generator);
         flyway.migrate();
-        strategy.parseAndSaveNews(100);
+//        NewsSiteProperties properties = new KorrepsondentProperties("korrespondent.properties");
+//        NewsSiteURLGenerator generator = new KorrespondentURLGenerator(properties, LocalDate.now(), 1);
+        /*Parser parser = new KorrespondentNewsPageParser(
+                properties.getPostItemTitle(), properties.getItemBigPhotoIMG(),
+                properties.getPostItemText(), properties.getTimeClass(), properties.getTagsItemClass());*/
+//        AggregatorStrategy strategy = new NewsAggregator(newsRepository, properties, generator);
+
+        NewsSiteProperties stranaProperties = new StranaProperties("strana.properties");
+        NewsSiteURLGenerator stranaGenerator = new StranaURLGenerator(stranaProperties,LocalDate.now(),1);
+        Parser parser = new StranaNewsPageParser(
+                stranaProperties.getPostItemTitle(), stranaProperties.getItemBigPhotoIMG(),
+                stranaProperties.getPostItemText(), stranaProperties.getTimeClass(), stranaProperties.getTagsItemClass());
+        AggregatorStrategy stranaStrategy = new NewsAggregator(newsRepository,stranaProperties,stranaGenerator,parser);
+
+        stranaStrategy.parseAndSaveNews(100);
+
+
+
+//        strategy.parseAndSaveNews(100);
     }
 
     private static Flyway createFlyway(DataSource dataSource) {

@@ -3,7 +3,6 @@ package com.newsagregator.strategy;
 import com.newsagregator.*;
 import com.newsagregator.crawler.webcrawlers.PageCrawler;
 import com.newsagregator.news.News;
-import com.newsagregator.parsers.KorrespondentNewsPageParser;
 import com.newsagregator.parsers.Parser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -32,16 +31,14 @@ public class NewsAggregator implements AggregatorStrategy {
     private final Parser parser;
     private Set<String> failureURLS = new ConcurrentSkipListSet<>();
 
-    public NewsAggregator(NewsRepository repository, NewsSiteProperties properties, NewsSiteURLGenerator urlGenerator) {
+    public NewsAggregator(NewsRepository repository, NewsSiteProperties properties, NewsSiteURLGenerator urlGenerator, Parser parser) {
         int connectionLimit = properties.getConnectionLimit();
         semaphore = new Semaphore(connectionLimit);
         this.repository = repository;
         this.properties = properties;
         this.urlGenerator = urlGenerator;
         crawler = new PageCrawler();
-        parser = new KorrespondentNewsPageParser(
-                properties.getPostItemTitle(), properties.getItemBigPhotoIMG(),
-                properties.getPostItemText(), properties.getTimeClass(), properties.getTagsItemClass());
+        this.parser = parser;
     }
 
     @Override
@@ -135,7 +132,7 @@ public class NewsAggregator implements AggregatorStrategy {
         String finalUrl = url;
         Document page = connectToPage(finalUrl);
         if (page != null) {
-            Set<String> urls = crawler.getPages(page, properties.getNewsClass(), properties.getFilter());
+            Set<String> urls = crawler.getPages(page, properties.getNewsClass());
             urls = urlGenerator.fixShortURL(urls);
             if (urls.isEmpty()) {
                 urlGenerator.minusDay();

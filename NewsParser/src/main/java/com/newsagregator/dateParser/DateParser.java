@@ -7,8 +7,8 @@ import java.util.Locale;
 
 public class DateParser {
     public static LocalDate parse(String date) {
-        if (date.equals(" Сегодня")) return LocalDate.now();
-        if (date.equals(" Вчера")) return LocalDate.now().minusDays(1);
+        if (date.equals(" Сегодня") || date.equals("сегодня")) return LocalDate.now();
+        if (date.equals(" Вчера")|| date.equals("вчера")) return LocalDate.now().minusDays(1);
         else {
             DateTimeFormatter formatter = new DateTimeFormatterBuilder()
                     .parseCaseInsensitive()
