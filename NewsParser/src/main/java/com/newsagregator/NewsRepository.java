@@ -22,7 +22,7 @@ public class NewsRepository {
         this.dataSource = dataSource;
     }
 
-    public void saveNews(Set<News> allNews) {
+    public synchronized void saveNews(Set<News> allNews) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(SQL_INSERT_ALL_NEWS)) {
             for (News news : allNews) {
@@ -35,6 +35,7 @@ public class NewsRepository {
                     ps.addBatch();
             }
             ps.executeBatch();
+            System.out.println("Save news to repository:"+allNews.size());
         } catch (SQLException e) {
             e.printStackTrace();
         }

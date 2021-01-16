@@ -1,5 +1,7 @@
 package com.newsagregator.strategy;
 
+import com.newsagregator.FailUrlProcessor;
+import com.newsagregator.FailureTaskProcessing;
 import com.newsagregator.NewsRepository;
 import com.newsagregator.crawler.webcrawlers.PageCrawler;
 import com.newsagregator.news.News;
@@ -9,7 +11,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.*;
@@ -23,10 +24,13 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private static final String POST_ITEM_TITLE = "post-item__title";
     private static final String NEWS_CLASS = "article__title";
     private static final String ITEM_BIG_PHOTO_IMG = "post-item__big-photo-img";
-    private static final String textClasPOST_ITEM_TEXT = "post-item__text";
+    private static final String POST_ITEM_TEXT = "post-item__text";
     private static final String WITH_TIME_CLASS = "post-item__info";
     private static final String POST_ITEM_TAGS_ITEM = "post-item__tags-item";
+    private static final int COUNT_RESOURCE_SEMAPHORE = 15;
+    private static final int schendulerPeriodOnMinutes = 1;
 
+    private final Semaphore semaphore;
     private static LocalDate date = LocalDate.now();
     private static AtomicInteger pageCounter = new AtomicInteger(1);
 
@@ -34,22 +38,38 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private PageCrawler crawler;
     private Parser parser;
 
+    private Set<String> failureURLS = new ConcurrentSkipListSet<>();
+
     public KorrespondentAgregatorStrategy(NewsRepository repository) {
+        semaphore = new Semaphore(COUNT_RESOURCE_SEMAPHORE);
         this.repository = repository;
         crawler = new PageCrawler();
         parser = new KorrespondentNewsPageParser(
-                POST_ITEM_TITLE, ITEM_BIG_PHOTO_IMG, textClasPOST_ITEM_TEXT, WITH_TIME_CLASS, POST_ITEM_TAGS_ITEM);
+                POST_ITEM_TITLE, ITEM_BIG_PHOTO_IMG, POST_ITEM_TEXT, WITH_TIME_CLASS, POST_ITEM_TAGS_ITEM);
     }
 
     @Override
     public void parseAndSaveNews(int count) {
+        Runnable task = new FailureTaskProcessing();
+        Thread test = new Thread(task);
+        test.setDaemon(true);
+        test.start();
+
+        FailUrlProcessor failureTaskProcessing = new FailUrlProcessor(failureURLS, schendulerPeriodOnMinutes, parser, repository);
+        failureTaskProcessing.check();
+
         err.println("Start Crawling");
         Set<String> newsUrls = crawlingUrls(count);
-        err.println("Stop Crawling");
+
+        err.println("Start Parsing");
         Set<News> news = councurencyParse(newsUrls);
+
         err.println("Start saving");
-        out.println("Successful:"+news.size());
+        out.println("Successful:" + news.size());
+        out.println("Failure:" + failureURLS.size());
+
         repository.saveNews(news);
+        failureTaskProcessing.shutdown();
     }
 
     private Set<News> councurencyParse(Set<String> newsUrls) {
@@ -62,19 +82,23 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(CopyOnWriteArraySet::new));
         service.shutdown();
+        await(service);
+        return news;
+    }
+
+    private void await(ExecutorService service) {
         try {
-            if(!service.awaitTermination(20, TimeUnit.SECONDS))
+            if (!service.awaitTermination(40, TimeUnit.SECONDS))
                 err.println("Threads didn't finish in 20 seconds!");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             e.printStackTrace();
         }
-        return news;
     }
 
     private News getNews(Future<News> newsFuture) {
         try {
-            News obj = newsFuture.get(10,TimeUnit.SECONDS);
+            News obj = newsFuture.get(1, TimeUnit.MINUTES);
             if (obj != null)
                 return obj;
         } catch (ArrayIndexOutOfBoundsException | InterruptedException | ExecutionException | TimeoutException e) {
@@ -87,10 +111,14 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
     private CopyOnWriteArrayList<Future<News>> getFutureNews(Set<String> newsUrls, ExecutorService service) {
         return newsUrls.stream()
                 .map(s -> service.submit(() -> {
+                    semaphore.acquire();
                     Document doc = connectToPage(s);
+                    semaphore.release();
                     if (doc != null) {
                         return parser.parsePage(doc);
                     } else {
+                        FailureTaskProcessing.check();
+                        failureURLS.add(s);
                         return null;
                     }
                 }))
@@ -152,11 +180,9 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         try {
             doc = Jsoup.connect(url)
                     .timeout(10000)
-                    .userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
-                    .referrer("http://www.google.com")
-                    .get();
+                    .referrer("http://www.google.com").get();
         } catch (IOException e) {
-            e.printStackTrace();
+            err.println("Can't connect to:" + url);
         }
         return doc;
     }

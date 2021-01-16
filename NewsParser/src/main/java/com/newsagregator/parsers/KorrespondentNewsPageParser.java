@@ -1,14 +1,14 @@
 package com.newsagregator.parsers;
 
-import com.newsagregator.news.News;
 import com.newsagregator.dateParser.DateParser;
-import org.jsoup.Jsoup;
+import com.newsagregator.news.News;
 import org.jsoup.nodes.Document;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.lang.System.err;
 
 public class KorrespondentNewsPageParser implements Parser {
     private final String titleClass;
@@ -35,7 +35,8 @@ public class KorrespondentNewsPageParser implements Parser {
         try {
              date = dateRow.split(",")[1];
         }catch (ArrayIndexOutOfBoundsException e){
-            System.err.println(dateRow);
+            err.println(dateRow);
+            err.println(doc.location());
         }
         LocalDate localDate = DateParser.parse(date);
         List<String> tags = parseTags(doc, tagsClass);
