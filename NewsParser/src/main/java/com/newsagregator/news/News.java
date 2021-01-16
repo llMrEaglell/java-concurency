@@ -33,6 +33,10 @@ public class News {
         this.tags = tags;
     }
 
+    public News(String title, String text, LocalDate datePublication,String mainImageURL,List<String> tags,String source) {
+        this(title,text,datePublication,mainImageURL,tags);
+        this.source = source;
+    }
 
 
     public void setTitle(String title) {

@@ -43,7 +43,7 @@ public class KorrespondentNewsPageParser implements Parser {
         LocalDate localDate = DateParser.parse(date);
         List<String> tags = parseTags(doc, tagsClass);
 
-        return new News(title, text, localDate, mainImageURL, tags);
+        return new News(title, text, localDate, mainImageURL, tags,"korrespondent.net");
     }
 
     @Override

@@ -32,7 +32,7 @@ public class StranaNewsPageParser implements Parser {
         LocalDate localDate = DateParser.parse(dateRow);
         List<String> tags = parseTags(doc, tagsClass);
 
-        return new News(title, text, localDate, mainImageURL, tags);
+        return new News(title, text, localDate, mainImageURL, tags,"strana.ua");
     }
 
     @Override
