@@ -42,7 +42,7 @@ public class StranaNewsPageParser implements Parser {
 
     @Override
     public String parseText(Document doc, String classText) {
-        return doc.getElementsByClass(classText).text();
+        return doc.getElementById(classText).text();
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.newsagregator;
 
 
+import com.newsagregator.crawler.webcrawlers.MainPageCrawler;
+import com.newsagregator.crawler.webcrawlers.PageCrawler;
 import com.newsagregator.parsers.Parser;
 import com.newsagregator.parsers.StranaNewsPageParser;
 import com.newsagregator.strategy.AggregatorStrategy;
@@ -21,22 +23,22 @@ public class Main {
         Flyway flyway = createFlyway(dataSource);
         NewsRepository newsRepository = new NewsRepository(dataSource);
         flyway.migrate();
+
+        PageCrawler crawler = new MainPageCrawler();
 //        NewsSiteProperties properties = new KorrepsondentProperties("korrespondent.properties");
 //        NewsSiteURLGenerator generator = new KorrespondentURLGenerator(properties, LocalDate.now(), 1);
-        /*Parser parser = new KorrespondentNewsPageParser(
-                properties.getPostItemTitle(), properties.getItemBigPhotoIMG(),
-                properties.getPostItemText(), properties.getTimeClass(), properties.getTagsItemClass());*/
-//        AggregatorStrategy strategy = new NewsAggregator(newsRepository, properties, generator);
-
+//        Parser parser = new KorrespondentNewsPageParser(
+//                properties.getPostItemTitle(), properties.getItemBigPhotoIMG(),
+//                properties.getPostItemText(), properties.getTimeClass(), properties.getTagsItemClass());
+//        AggregatorStrategy strategy = new NewsAggregator(newsRepository, properties, generator,parser,crawler);
         NewsSiteProperties stranaProperties = new StranaProperties("strana.properties");
-        NewsSiteURLGenerator stranaGenerator = new StranaURLGenerator(stranaProperties,LocalDate.now(),1);
+        NewsSiteURLGenerator stranaGenerator = new StranaURLGenerator(stranaProperties, LocalDate.now(), 1);
         Parser parser = new StranaNewsPageParser(
                 stranaProperties.getPostItemTitle(), stranaProperties.getItemBigPhotoIMG(),
                 stranaProperties.getPostItemText(), stranaProperties.getTimeClass(), stranaProperties.getTagsItemClass());
-        AggregatorStrategy stranaStrategy = new NewsAggregator(newsRepository,stranaProperties,stranaGenerator,parser);
+        AggregatorStrategy strategy = new NewsAggregator(newsRepository, stranaProperties, stranaGenerator, parser, crawler);
 
-        stranaStrategy.parseAndSaveNews(100);
-
+        strategy.parseAndSaveNews(100);
 
 
 //        strategy.parseAndSaveNews(100);
