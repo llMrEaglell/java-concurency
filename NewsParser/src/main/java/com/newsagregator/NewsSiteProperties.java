@@ -12,6 +12,7 @@ public interface NewsSiteProperties {
     String getPostItemText();
     String getTimeClass();
     String getTagsItemClass();
+    String getBlockWithNews();
     int getConnectionLimit();
 
     default Properties loadProperties(String fileName) throws IOException {
