@@ -31,13 +31,13 @@ public class NewsAggregator implements AggregatorStrategy {
     private final Parser parser;
     private Set<String> failureURLS = new ConcurrentSkipListSet<>();
 
-    public NewsAggregator(NewsRepository repository, NewsSiteProperties properties, NewsSiteURLGenerator urlGenerator, Parser parser) {
+    public NewsAggregator(NewsRepository repository, NewsSiteProperties properties, NewsSiteURLGenerator urlGenerator, Parser parser, PageCrawler crawler) {
+        this.crawler = crawler;
         int connectionLimit = properties.getConnectionLimit();
         semaphore = new Semaphore(connectionLimit);
         this.repository = repository;
         this.properties = properties;
         this.urlGenerator = urlGenerator;
-        crawler = new PageCrawler();
         this.parser = parser;
     }
 
@@ -132,13 +132,13 @@ public class NewsAggregator implements AggregatorStrategy {
         String finalUrl = url;
         Document page = connectToPage(finalUrl);
         if (page != null) {
-            Set<String> urls = crawler.getPages(page, properties.getNewsClass());
-            urls = urlGenerator.fixShortURL(urls);
+            Set<String> urls = crawler.getPages(page,properties.getBlockWithNews() ,properties.getNewsClass());
             if (urls.isEmpty()) {
                 urlGenerator.minusDay();
                 urlGenerator.setCounterToStart();
             } else {
                 urlGenerator.nextPageCounter();
+                urls = urlGenerator.fixShortURL(urls);
                 addToList(newsUrls, urls, count);
             }
         }
