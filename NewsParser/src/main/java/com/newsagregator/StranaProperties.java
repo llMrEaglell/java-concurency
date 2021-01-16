@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class StranaProperties implements NewsSiteProperties {
+    private final String BLOCK_WITH_NEWS;
     private final String BASE_URL;
     private final String POST_ITEM_TITLE;
     private final String NEWS_CLASS;
@@ -25,6 +26,7 @@ public class StranaProperties implements NewsSiteProperties {
         POST_ITEM_TAGS_ITEM = cfg.getProperty("post.item.tags");
         FILTER = cfg.getProperty("site.filter");
         CONNECTION_LIMIT = Integer.parseInt(cfg.getProperty("site.connection.limit"));
+        BLOCK_WITH_NEWS = cfg.getProperty("block.with.news");
     }
 
     @Override
@@ -60,6 +62,11 @@ public class StranaProperties implements NewsSiteProperties {
     @Override
     public String getTagsItemClass() {
         return POST_ITEM_TAGS_ITEM;
+    }
+
+    @Override
+    public String getBlockWithNews() {
+        return BLOCK_WITH_NEWS;
     }
 
     @Override
