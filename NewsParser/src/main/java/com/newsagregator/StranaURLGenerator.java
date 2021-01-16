@@ -19,7 +19,7 @@ public class StranaURLGenerator implements NewsSiteURLGenerator {
     @Override
     public String getUrl() {
         String urlPage;
-        urlPage = String.format("%s/day=%d-%d-%d/page-%d.html",
+        urlPage = String.format("%sday=%d-%d-%d/page-%d.html",
                 properties.getBaseURL(),
                 date.getYear(),
                 date.getMonthValue(),
