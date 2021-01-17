@@ -94,8 +94,15 @@ public class NewsAggregator implements AggregatorStrategy {
             News obj = newsFuture.get(1, TimeUnit.MINUTES);
             if (obj != null)
                 return obj;
-        } catch (ArrayIndexOutOfBoundsException | InterruptedException | ExecutionException | TimeoutException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            err.println("TimeOut. News can be get");
+            e.printStackTrace();
+        } catch (ExecutionException e) {
             e.printStackTrace();
         }
         return null;
