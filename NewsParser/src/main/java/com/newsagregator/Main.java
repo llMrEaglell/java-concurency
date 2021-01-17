@@ -3,6 +3,7 @@ package com.newsagregator;
 
 import com.newsagregator.crawler.webcrawlers.MainPageCrawler;
 import com.newsagregator.crawler.webcrawlers.PageCrawler;
+import com.newsagregator.parsers.KorrespondentNewsPageParser;
 import com.newsagregator.parsers.Parser;
 import com.newsagregator.parsers.StranaNewsPageParser;
 import com.newsagregator.strategy.AggregatorStrategy;
@@ -16,6 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -23,25 +26,24 @@ public class Main {
         Flyway flyway = createFlyway(dataSource);
         NewsRepository newsRepository = new NewsRepository(dataSource);
         flyway.migrate();
-
+        ExecutorService service = Executors.newCachedThreadPool();
         PageCrawler crawler = new MainPageCrawler();
-//        NewsSiteProperties properties = new KorrepsondentProperties("korrespondent.properties");
-//        NewsSiteURLGenerator generator = new KorrespondentURLGenerator(properties, LocalDate.now(), 1);
-//        Parser parser = new KorrespondentNewsPageParser(
-//                properties.getPostItemTitle(), properties.getItemBigPhotoIMG(),
-//                properties.getPostItemText(), properties.getTimeClass(), properties.getTagsItemClass());
-//        AggregatorStrategy strategy = new NewsAggregator(newsRepository, properties, generator,parser,crawler);
+        NewsSiteProperties properties = new KorrepsondentProperties("korrespondent.properties");
+        NewsSiteURLGenerator generator = new KorrespondentURLGenerator(properties, LocalDate.now(), 1);
+        Parser parser = new KorrespondentNewsPageParser(
+                properties.getPostItemTitle(), properties.getItemBigPhotoIMG(),
+                properties.getPostItemText(), properties.getTimeClass(), properties.getTagsItemClass());
+        AggregatorStrategy strategy = new NewsAggregator(newsRepository, properties, generator, parser, crawler);
+
         NewsSiteProperties stranaProperties = new StranaProperties("strana.properties");
         NewsSiteURLGenerator stranaGenerator = new StranaURLGenerator(stranaProperties, LocalDate.now(), 1);
-        Parser parser = new StranaNewsPageParser(
+        Parser parser2 = new StranaNewsPageParser(
                 stranaProperties.getPostItemTitle(), stranaProperties.getItemBigPhotoIMG(),
                 stranaProperties.getPostItemText(), stranaProperties.getTimeClass(), stranaProperties.getTagsItemClass());
-        AggregatorStrategy strategy = new NewsAggregator(newsRepository, stranaProperties, stranaGenerator, parser, crawler);
-
-        strategy.parseAndSaveNews(100);
-
-
-//        strategy.parseAndSaveNews(100);
+        AggregatorStrategy strategy2 = new NewsAggregator(newsRepository, stranaProperties, stranaGenerator, parser2, crawler);
+        service.submit(() -> strategy.parseAndSaveNews(10000));
+        service.submit(() -> strategy2.parseAndSaveNews(10000));
+        service.shutdown();
     }
 
     private static Flyway createFlyway(DataSource dataSource) {
