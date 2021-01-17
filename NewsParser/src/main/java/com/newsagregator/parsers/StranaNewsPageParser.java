@@ -47,9 +47,14 @@ public class StranaNewsPageParser implements Parser {
 
     @Override
     public String parseMainImage(Document doc, String imageClass) {
-        return doc.baseUri().substring(0, 17) +
-                doc.body().getElementsByClass("article-image").get(0)
-                        .childNodes().get(1).attr("src");
+        try {
+            return doc.baseUri().substring(0, 17) +
+                    doc.body().getElementsByClass("article-image").get(0)
+                            .childNodes().get(1).attr("src");
+        }catch (IndexOutOfBoundsException e){
+            return "";
+        }
+
     }
 
     @Override
