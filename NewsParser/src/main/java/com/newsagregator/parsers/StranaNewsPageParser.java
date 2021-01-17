@@ -29,7 +29,7 @@ public class StranaNewsPageParser implements Parser {
         String mainImageURL = parseMainImage(doc, mainImageClass);
         String text = parseText(doc, textClass);
         String dateRow = parseDate(doc, withTimeClass);
-        LocalDate localDate = DateParser.parse(dateRow);
+        LocalDate localDate = DateParser.parseDate(dateRow);
         List<String> tags = parseTags(doc, tagsClass);
 
         return new News(title, text, localDate, mainImageURL, tags,"strana.ua");
