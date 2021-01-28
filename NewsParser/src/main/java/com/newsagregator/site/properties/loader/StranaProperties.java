@@ -1,5 +1,6 @@
 package com.newsagregator.site.properties.loader;
 
+import com.newsagregator.NewsSites;
 import com.newsagregator.PropertiesLoader;
 
 import java.util.Properties;
@@ -78,5 +79,10 @@ public class StranaProperties implements NewsSiteProperties {
     @Override
     public String getFilter() {
         return FILTER;
+    }
+
+    @Override
+    public NewsSites getType() {
+        return NewsSites.STRANA;
     }
 }

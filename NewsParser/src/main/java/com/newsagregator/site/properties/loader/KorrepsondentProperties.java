@@ -1,5 +1,6 @@
 package com.newsagregator.site.properties.loader;
 
+import com.newsagregator.NewsSites;
 import com.newsagregator.PropertiesLoader;
 
 import java.util.Properties;
@@ -28,6 +29,11 @@ public class KorrepsondentProperties implements NewsSiteProperties {
         FILTER = cfg.getProperty("site.filter");
         CONNECTION_LIMIT = Integer.parseInt(cfg.getProperty("site.connection.limit"));
         BLOCK_WITH_NEWS = cfg.getProperty("block.with.news");
+    }
+
+    @Override
+    public NewsSites getType() {
+        return NewsSites.KORRESPONDENT;
     }
 
     @Override
