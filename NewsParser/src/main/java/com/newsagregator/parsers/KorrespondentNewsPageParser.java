@@ -6,23 +6,13 @@ import org.jsoup.nodes.Document;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.lang.System.err;
 
-public class KorrespondentNewsPageParser implements Parser {
-    private final String titleClass;
-    private final String mainImageClass;
-    private final String textClass;
-    private final String withTimeClass;
-    private final String tagsClass;
+public class KorrespondentNewsPageParser extends BasePageParser implements Parser {
 
     public KorrespondentNewsPageParser(String titleClass, String mainImageClass, String textClass, String withTimeClass, String tagsClass) {
-        this.titleClass = titleClass;
-        this.mainImageClass = mainImageClass;
-        this.textClass = textClass;
-        this.withTimeClass = withTimeClass;
-        this.tagsClass = tagsClass;
+        super(titleClass, mainImageClass, textClass, withTimeClass, tagsClass);
     }
 
     @Override
@@ -43,12 +33,7 @@ public class KorrespondentNewsPageParser implements Parser {
         LocalDate localDate = DateParser.parse(date);
         List<String> tags = parseTags(doc, tagsClass);
 
-        return new News(title, text, localDate, mainImageURL, tags,"korrespondent.net");
-    }
-
-    @Override
-    public String parseDate(Document doc, String classWithTime) {
-        return doc.getElementsByClass(classWithTime).text();
+        return new News(title, text, localDate, mainImageURL, tags, "korrespondent.net");
     }
 
     @Override
@@ -61,10 +46,4 @@ public class KorrespondentNewsPageParser implements Parser {
         return doc.getElementsByClass(imageClass).attr("src");
     }
 
-    @Override
-    public List<String> parseTags(Document doc, String tagsClass) {
-        return doc.getElementsByClass(tagsClass).stream()
-                .map(element -> element.getElementsByTag("a").text())
-                .collect(Collectors.toList());
-    }
 }

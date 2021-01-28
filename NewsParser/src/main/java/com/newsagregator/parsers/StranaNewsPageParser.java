@@ -6,21 +6,11 @@ import org.jsoup.nodes.Document;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class StranaNewsPageParser implements Parser {
-    private final String titleClass;
-    private final String mainImageClass;
-    private final String textClass;
-    private final String withTimeClass;
-    private final String tagsClass;
+public class StranaNewsPageParser extends BasePageParser implements Parser {
 
     public StranaNewsPageParser(String titleClass, String mainImageClass, String textClass, String withTimeClass, String tagsClass) {
-        this.titleClass = titleClass;
-        this.mainImageClass = mainImageClass;
-        this.textClass = textClass;
-        this.withTimeClass = withTimeClass;
-        this.tagsClass = tagsClass;
+        super(titleClass, mainImageClass, textClass, withTimeClass, tagsClass);
     }
 
     @Override
@@ -32,12 +22,7 @@ public class StranaNewsPageParser implements Parser {
         LocalDate localDate = DateParser.parseDate(dateRow);
         List<String> tags = parseTags(doc, tagsClass);
 
-        return new News(title, text, localDate, mainImageURL, tags,"strana.ua");
-    }
-
-    @Override
-    public String parseDate(Document doc, String classWithTime) {
-        return doc.getElementsByClass(classWithTime).text();
+        return new News(title, text, localDate, mainImageURL, tags, "strana.ua");
     }
 
     @Override
@@ -51,17 +36,10 @@ public class StranaNewsPageParser implements Parser {
             return doc.baseUri().substring(0, 17) +
                     doc.body().getElementsByClass("article-image").get(0)
                             .childNodes().get(1).attr("src");
-        }catch (IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             return "";
         }
 
-    }
-
-    @Override
-    public List<String> parseTags(Document doc, String tagsClass) {
-        return doc.getElementsByClass(tagsClass).stream()
-                .map(element -> element.getElementsByTag("a").text())
-                .collect(Collectors.toList());
     }
 }
 
