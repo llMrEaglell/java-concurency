@@ -6,8 +6,14 @@ import com.newsagregator.crawler.webcrawlers.PageCrawler;
 import com.newsagregator.parsers.KorrespondentNewsPageParser;
 import com.newsagregator.parsers.Parser;
 import com.newsagregator.parsers.StranaNewsPageParser;
+import com.newsagregator.site.properties.loader.KorrepsondentProperties;
+import com.newsagregator.site.properties.loader.NewsSiteProperties;
+import com.newsagregator.site.properties.loader.StranaProperties;
 import com.newsagregator.strategy.AggregatorStrategy;
 import com.newsagregator.strategy.NewsAggregator;
+import com.newsagregator.url.generator.KorrespondentURLGenerator;
+import com.newsagregator.url.generator.NewsSiteURLGenerator;
+import com.newsagregator.url.generator.StranaURLGenerator;
 
 import java.time.LocalDate;
 import java.util.concurrent.ExecutorService;

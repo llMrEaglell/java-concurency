@@ -1,4 +1,4 @@
-package com.newsagregator;
+package com.newsagregator.url.generator;
 
 import java.util.Set;
 

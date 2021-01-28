@@ -4,6 +4,8 @@ import com.newsagregator.*;
 import com.newsagregator.crawler.webcrawlers.PageCrawler;
 import com.newsagregator.news.News;
 import com.newsagregator.parsers.Parser;
+import com.newsagregator.site.properties.loader.NewsSiteProperties;
+import com.newsagregator.url.generator.NewsSiteURLGenerator;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 

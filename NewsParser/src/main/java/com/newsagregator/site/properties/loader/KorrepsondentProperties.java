@@ -1,8 +1,10 @@
-package com.newsagregator;
+package com.newsagregator.site.properties.loader;
+
+import com.newsagregator.PropertiesLoader;
 
 import java.util.Properties;
 
-public class StranaProperties implements NewsSiteProperties {
+public class KorrepsondentProperties implements NewsSiteProperties {
     private final String BLOCK_WITH_NEWS;
     private final String BASE_URL;
     private final String POST_ITEM_TITLE;
@@ -14,7 +16,7 @@ public class StranaProperties implements NewsSiteProperties {
     private final String FILTER;
     private final int CONNECTION_LIMIT;
 
-    public StranaProperties(String fileName){
+    public KorrepsondentProperties(String fileName){
         Properties cfg = PropertiesLoader.load(fileName);
         BASE_URL = cfg.getProperty("base.url");
         POST_ITEM_TITLE = cfg.getProperty("post.item.title");

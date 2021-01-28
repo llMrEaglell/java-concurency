@@ -1,4 +1,4 @@
-package com.newsagregator;
+package com.newsagregator.site.properties.loader;
 
 public interface NewsSiteProperties {
     String getBaseURL();

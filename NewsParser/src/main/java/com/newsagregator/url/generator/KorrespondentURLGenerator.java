@@ -1,4 +1,6 @@
-package com.newsagregator;
+package com.newsagregator.url.generator;
+
+import com.newsagregator.site.properties.loader.NewsSiteProperties;
 
 import java.time.LocalDate;
 import java.util.Set;
