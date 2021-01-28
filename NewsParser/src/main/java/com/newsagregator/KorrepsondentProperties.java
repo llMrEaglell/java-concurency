@@ -15,7 +15,7 @@ public class KorrepsondentProperties implements NewsSiteProperties {
     private final int CONNECTION_LIMIT;
 
     public KorrepsondentProperties(String fileName){
-        Properties cfg = loadProperties(fileName);
+        Properties cfg = PropertiesLoader.load(fileName);
         BASE_URL = cfg.getProperty("base.url");
         POST_ITEM_TITLE = cfg.getProperty("post.item.title");
         NEWS_CLASS = cfg.getProperty("news.class");
