@@ -13,15 +13,13 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.flywaydb.core.Flyway;
 
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
         DataSource dataSource = getDataSource();
         Flyway flyway = createFlyway(dataSource);
         NewsRepository newsRepository = new NewsRepository(dataSource);
@@ -52,8 +50,8 @@ public class Main {
                 .load();
     }
 
-    private static DataSource getDataSource() throws IOException {
-        Properties cfg = loadProperties();
+    private static DataSource getDataSource(){
+        Properties cfg = PropertiesLoader.load("application.properties");
         HikariConfig hikariConfig = new HikariConfig();
 
         hikariConfig.setPassword(cfg.getProperty("jdbc.password"));
@@ -62,12 +60,5 @@ public class Main {
         hikariConfig.setMaximumPoolSize(Integer.parseInt(cfg.getProperty(("jdbc.pool.max.connection"))));
 
         return new HikariDataSource(hikariConfig);
-    }
-
-    private static Properties loadProperties() throws IOException {
-        InputStream resource = Main.class.getClassLoader().getResourceAsStream("application.properties");
-        Properties properties = new Properties();
-        properties.load(resource);
-        return properties;
     }
 }
