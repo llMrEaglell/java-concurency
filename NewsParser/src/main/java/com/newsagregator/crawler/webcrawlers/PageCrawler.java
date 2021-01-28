@@ -7,5 +7,5 @@ import java.util.Set;
 public interface PageCrawler {
     Set<String> getPages(Document page,String blockWithArticles, String className);
 
-    Set<String> getPages(Document page,String blockWithArticles, String className, String filter);
+    Set<String> getPagesByFilter(Document page, String blockWithArticles, String className, String filter);
 }

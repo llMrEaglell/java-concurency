@@ -12,7 +12,9 @@ public class MainPageCrawler implements PageCrawler {
                 .map(element -> element.getElementsByTag("a").attr("href"))
                 .collect(Collectors.toSet());
     }
-    public Set<String> getPages(Document page,  String blockWithArticles, String className,String filter){
+
+    @Override
+    public Set<String> getPagesByFilter(Document page, String blockWithArticles, String className, String filter){
         return page.getElementsByClass(blockWithArticles).get(0).getElementsByClass(className).parallelStream()
                 .map(element -> element.getElementsByTag("a").attr("href"))
                 .filter(s -> s.startsWith(filter))
