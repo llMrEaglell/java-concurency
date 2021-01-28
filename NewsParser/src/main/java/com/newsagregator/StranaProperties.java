@@ -1,6 +1,5 @@
 package com.newsagregator;
 
-import java.io.IOException;
 import java.util.Properties;
 
 public class StranaProperties implements NewsSiteProperties {
@@ -15,7 +14,7 @@ public class StranaProperties implements NewsSiteProperties {
     private final String FILTER;
     private final int CONNECTION_LIMIT;
 
-    public StranaProperties(String fileName) throws IOException {
+    public StranaProperties(String fileName){
         Properties cfg = loadProperties(fileName);
         BASE_URL = cfg.getProperty("base.url");
         POST_ITEM_TITLE = cfg.getProperty("post.item.title");
