@@ -8,57 +8,33 @@ import com.newsagregator.parsers.Parser;
 import com.newsagregator.parsers.StranaNewsPageParser;
 import com.newsagregator.strategy.AggregatorStrategy;
 import com.newsagregator.strategy.NewsAggregator;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import org.flywaydb.core.Flyway;
 
-import javax.sql.DataSource;
 import java.time.LocalDate;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Main {
     public static void main(String[] args){
-        DataSource dataSource = getDataSource();
-        Flyway flyway = createFlyway(dataSource);
-        NewsRepository newsRepository = new NewsRepository(dataSource);
-        flyway.migrate();
+        DBConfig dbConfig = new DBConfig("application.properties");
         ExecutorService service = Executors.newCachedThreadPool();
         PageCrawler crawler = new MainPageCrawler();
+
         NewsSiteProperties properties = new KorrepsondentProperties("korrespondent.properties");
         NewsSiteURLGenerator generator = new KorrespondentURLGenerator(properties, LocalDate.now(), 1);
         Parser parser = new KorrespondentNewsPageParser(
                 properties.getPostItemTitle(), properties.getItemBigPhotoIMG(),
                 properties.getPostItemText(), properties.getTimeClass(), properties.getTagsItemClass());
-        AggregatorStrategy strategy = new NewsAggregator(newsRepository, properties, generator, parser, crawler);
+        AggregatorStrategy strategy = new NewsAggregator(dbConfig.getNewsRepository(), properties, generator, parser, crawler);
 
         NewsSiteProperties stranaProperties = new StranaProperties("strana.properties");
         NewsSiteURLGenerator stranaGenerator = new StranaURLGenerator(stranaProperties, LocalDate.now(), 1);
         Parser parser2 = new StranaNewsPageParser(
                 stranaProperties.getPostItemTitle(), stranaProperties.getItemBigPhotoIMG(),
                 stranaProperties.getPostItemText(), stranaProperties.getTimeClass(), stranaProperties.getTagsItemClass());
-        AggregatorStrategy strategy2 = new NewsAggregator(newsRepository, stranaProperties, stranaGenerator, parser2, crawler);
+        AggregatorStrategy strategy2 = new NewsAggregator(dbConfig.getNewsRepository(), stranaProperties, stranaGenerator, parser2, crawler);
         service.submit(() -> strategy.parseAndSaveNews(10000));
         service.submit(() -> strategy2.parseAndSaveNews(10000));
         service.shutdown();
     }
 
-    private static Flyway createFlyway(DataSource dataSource) {
-        return Flyway.configure()
-                .dataSource(dataSource)
-                .load();
-    }
-
-    private static DataSource getDataSource(){
-        Properties cfg = PropertiesLoader.load("application.properties");
-        HikariConfig hikariConfig = new HikariConfig();
-
-        hikariConfig.setPassword(cfg.getProperty("jdbc.password"));
-        hikariConfig.setUsername(cfg.getProperty(("jdbc.username")));
-        hikariConfig.setJdbcUrl(cfg.getProperty(("jdbc.url")));
-        hikariConfig.setMaximumPoolSize(Integer.parseInt(cfg.getProperty(("jdbc.pool.max.connection"))));
-
-        return new HikariDataSource(hikariConfig);
-    }
 }
