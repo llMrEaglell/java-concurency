@@ -100,7 +100,7 @@ public class NewsAggregator implements AggregatorStrategy {
             Thread.currentThread().interrupt();
             e.printStackTrace();
         } catch (TimeoutException e) {
-            err.println("TimeOut. News can be get");
+            err.println("TimeOut. News can't be get");
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
