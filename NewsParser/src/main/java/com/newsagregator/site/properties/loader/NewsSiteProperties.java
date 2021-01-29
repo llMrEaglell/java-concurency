@@ -1,5 +1,7 @@
 package com.newsagregator.site.properties.loader;
 
+import com.newsagregator.NewsSites;
+
 public interface NewsSiteProperties {
     String getBaseURL();
 
@@ -20,4 +22,6 @@ public interface NewsSiteProperties {
     int getConnectionLimit();
 
     String getFilter();
+
+    NewsSites getType();
 }
