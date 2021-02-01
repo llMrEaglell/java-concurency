@@ -7,6 +7,10 @@ public enum NewsSites {
     private String propertiesFile;
     
     NewsSites(String propertiesFile) {
+        this.propertiesFile = propertiesFile;
+    }
 
+    public String getPropertiesFile() {
+        return propertiesFile;
     }
 }
