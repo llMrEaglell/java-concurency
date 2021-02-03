@@ -1,51 +1,46 @@
 package com.newsagregator.strategy;
 
-import com.newsagregator.FailUrlProcessor;
-import com.newsagregator.FailureTaskProcessing;
-import com.newsagregator.NewsRepository;
+import com.newsagregator.*;
 import com.newsagregator.crawler.webcrawlers.PageCrawler;
 import com.newsagregator.news.News;
-import com.newsagregator.parsers.KorrespondentNewsPageParser;
 import com.newsagregator.parsers.Parser;
+import com.newsagregator.site.properties.loader.NewsSiteProperties;
+import com.newsagregator.url.generator.NewsSiteURLGenerator;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static java.lang.System.*;
+import static java.lang.System.err;
+import static java.lang.System.out;
 
-public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
-    private static final String BASE_URL = "https://korrespondent.net/all/";
-    private static final String POST_ITEM_TITLE = "post-item__title";
-    private static final String NEWS_CLASS = "article__title";
-    private static final String ITEM_BIG_PHOTO_IMG = "post-item__big-photo-img";
-    private static final String POST_ITEM_TEXT = "post-item__text";
-    private static final String WITH_TIME_CLASS = "post-item__info";
-    private static final String POST_ITEM_TAGS_ITEM = "post-item__tags-item";
-    private static final int COUNT_RESOURCE_SEMAPHORE = 15;
-    private static final int schendulerPeriodOnMinutes = 1;
+public class NewsAggregator implements AggregatorStrategy {
+    private final NewsSiteProperties properties;
+    private static final int SCHEDULER_PERIOD_ON_MINUTES = 1;
 
     private final Semaphore semaphore;
-    private static LocalDate date = LocalDate.now();
-    private static AtomicInteger pageCounter = new AtomicInteger(1);
 
+    private final NewsSiteURLGenerator urlGenerator;
     private final NewsRepository repository;
-    private PageCrawler crawler;
-    private Parser parser;
 
+    private final PageCrawler crawler;
+    private final Parser parser;
     private Set<String> failureURLS = new ConcurrentSkipListSet<>();
 
-    public KorrespondentAgregatorStrategy(NewsRepository repository) {
-        semaphore = new Semaphore(COUNT_RESOURCE_SEMAPHORE);
+    public NewsAggregator(NewsRepository repository, NewsSiteProperties properties, NewsSiteURLGenerator urlGenerator, Parser parser, PageCrawler crawler) {
+        this.crawler = crawler;
+        int connectionLimit = properties.getConnectionLimit();
+        semaphore = new Semaphore(connectionLimit);
         this.repository = repository;
-        crawler = new PageCrawler();
-        parser = new KorrespondentNewsPageParser(
-                POST_ITEM_TITLE, ITEM_BIG_PHOTO_IMG, POST_ITEM_TEXT, WITH_TIME_CLASS, POST_ITEM_TAGS_ITEM);
+        this.properties = properties;
+        this.urlGenerator = urlGenerator;
+        this.parser = parser;
     }
 
     @Override
@@ -55,7 +50,7 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
         test.setDaemon(true);
         test.start();
 
-        FailUrlProcessor failureTaskProcessing = new FailUrlProcessor(failureURLS, schendulerPeriodOnMinutes, parser, repository);
+        FailUrlProcessor failureTaskProcessing = new FailUrlProcessor(failureURLS, SCHEDULER_PERIOD_ON_MINUTES, parser, repository);
         failureTaskProcessing.check();
 
         err.println("Start Crawling");
@@ -101,8 +96,15 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
             News obj = newsFuture.get(1, TimeUnit.MINUTES);
             if (obj != null)
                 return obj;
-        } catch (ArrayIndexOutOfBoundsException | InterruptedException | ExecutionException | TimeoutException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            err.println("TimeOut. News can't be get");
+            e.printStackTrace();
+        } catch (ExecutionException e) {
             e.printStackTrace();
         }
         return null;
@@ -135,45 +137,27 @@ public class KorrespondentAgregatorStrategy implements AgregatorStrategy {
 
     private void generateUrls(int count, Set<String> newsUrls) {
         String url;
-        url = getUrl();
+        url = urlGenerator.getUrl();
         String finalUrl = url;
         Document page = connectToPage(finalUrl);
         if (page != null) {
-            Set<String> urls = crawler.getPages(page, NEWS_CLASS, "https://korrespondent.net/");
+            Set<String> urls = crawler.getPages(page,properties.getBlockWithNews() ,properties.getNewsClass());
             if (urls.isEmpty()) {
-                date = date.minusDays(1);
-                pageCounter.set(1);
+                urlGenerator.minusDay();
+                urlGenerator.setCounterToStart();
             } else {
-                pageCounter.incrementAndGet();
+                urlGenerator.nextPageCounter();
+                urls = urlGenerator.fixShortURL(urls);
                 addToList(newsUrls, urls, count);
             }
-            generateNextUrl(urls.isEmpty());
         }
     }
 
-    private void generateNextUrl(boolean isUrlHaveNews) {
-        if (!isUrlHaveNews) {
-            pageCounter.incrementAndGet();
-        } else {
-            date = date.minusDays(1);
-            pageCounter.set(1);
-        }
-    }
 
     void addToList(Set<String> source, Set<String> urls, int maxSize) {
         urls.stream().takeWhile(url -> source.size() != maxSize).forEach(source::add);
     }
 
-    private String getUrl() {
-        String urlPage;
-        urlPage = String.format("%s/%d/%s/%d/p%d/print/",
-                BASE_URL,
-                date.getYear(),
-                date.getMonth().toString().toLowerCase(),
-                date.getDayOfMonth(),
-                pageCounter.get());
-        return urlPage;
-    }
 
     private Document connectToPage(String url) {
         Document doc = null;

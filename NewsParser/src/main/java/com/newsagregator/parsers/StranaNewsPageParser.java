@@ -7,9 +7,9 @@ import org.jsoup.nodes.Document;
 import java.time.LocalDate;
 import java.util.List;
 
-public class KorrespondentNewsPageParser extends BasePageParser implements Parser {
+public class StranaNewsPageParser extends BasePageParser implements Parser {
 
-    public KorrespondentNewsPageParser(String titleClass, String mainImageClass, String textClass, String withTimeClass, String tagsClass) {
+    public StranaNewsPageParser(String titleClass, String mainImageClass, String textClass, String withTimeClass, String tagsClass) {
         super(titleClass, mainImageClass, textClass, withTimeClass, tagsClass);
     }
 
@@ -19,28 +19,28 @@ public class KorrespondentNewsPageParser extends BasePageParser implements Parse
         String mainImageURL = parseMainImage(doc, mainImageClass);
         String text = parseText(doc, textClass);
         String dateRow = parseDate(doc, withTimeClass);
-        String date;
-
-        if (dateRow.split(",").length > 0) {
-            date = dateRow.split(",")[1];
-        } else {
-            date = " Сегодня";
-        }
-
-        LocalDate localDate = DateParser.parse(date);
+        LocalDate localDate = DateParser.parseDate(dateRow);
         List<String> tags = parseTags(doc, tagsClass);
 
-        return new News(title, text, localDate, mainImageURL, tags, "korrespondent.net");
+        return new News(title, text, localDate, mainImageURL, tags, "strana.ua");
     }
 
     @Override
     public String parseText(Document doc, String classText) {
-        return doc.getElementsByClass(classText).text();
+        return doc.getElementById(classText).text();
     }
 
     @Override
     public String parseMainImage(Document doc, String imageClass) {
-        return doc.getElementsByClass(imageClass).attr("src");
-    }
+        try {
+            return doc.baseUri().substring(0, 17) +
+                    doc.body().getElementsByClass("article-image").get(0)
+                            .childNodes().get(1).attr("src");
+        } catch (IndexOutOfBoundsException e) {
+            return "";
+        }
 
+    }
 }
+
+

@@ -8,10 +8,7 @@ import java.util.List;
 public interface Parser {
     News parsePage(Document doc);
 
-    default String parseTitle(Document document, String titleClass){
-        return document.body()
-                .getElementsByClass(titleClass).text();
-    }
+    String parseTitle(Document document, String titleClass);
 
     String parseDate(Document doc, String classWithTime);
 
